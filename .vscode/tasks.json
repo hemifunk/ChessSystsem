@@ -1,0 +1,37 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: gcc.exe build active file",
+			"command": "D:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe",
+			"args": [
+				"-g",
+				"-std=c99",
+				"-Wall",
+				"-Wextra",
+				"-Werror",
+				"-pedantic-errors",
+				"${fileDirname}\\libmap.a",
+				"${fileDirname}\\Game.c",
+				"${fileDirname}\\HomeWork3_2.c",
+				"${fileDirname}\\main.c",
+				"${fileDirname}\\PlayerStatus.c",
+				"${fileDirname}\\Tournament.c",
+				"-o",
+				"${fileDirname}\\ChessSystem.exe"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: \"D:\\Program Files\\mingw-w64\\x86_64-8.1.0-posix-seh-rt_v6-rev0\\mingw64\\bin\\gcc.exe\""
+		}
+	]
+}
