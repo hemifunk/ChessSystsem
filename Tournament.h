@@ -1,13 +1,13 @@
 #ifndef TOURNAMENT_H_
-#define TOURNAMENT_H
+#define TOURNAMENT_H_
 #include "Game.h"
 #include "chessSystem.h"
-#include "PlayerStatus.h"
+#include "Player.h"
 #include <stdbool.h>
 #include <string.h>
 #include "map.h"
 
-typedef struct tournament_t
+struct Tournament_t
 {
     int id_tournament;
     bool status_tournament;
@@ -16,7 +16,9 @@ typedef struct tournament_t
     int max_games_per_player;
     Map Games;
     Map Players_Results;
-} *Tournament;
+};
+
+typedef struct Tournament_t* Tournament;
 
 /**Given an integer, the function copies it*/
 int copyKey(void* id);

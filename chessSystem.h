@@ -3,7 +3,6 @@
 
 #include <stdio.h>
 
-
 typedef enum {
     CHESS_OUT_OF_MEMORY,
     CHESS_NULL_ARGUMENT,
@@ -25,14 +24,16 @@ typedef enum {
 /*
     Type for specifying who is the winner in a certain match
 */
-typedef enum {
+typedef enum 
+{
+    UNINITIALIZED,
     FIRST_PLAYER,
     SECOND_PLAYER,
     DRAW
 } Winner;
 
 /** Type for representing a chess system that organizes chess tournaments */
-typedef struct chess_system_t *ChessSystem;
+typedef struct Chess_System_t *ChessSystem;
 
 /**
  * chessCreate: create an empty chess system.

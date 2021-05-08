@@ -16,7 +16,7 @@
 				"${fileDirname}\\Game.c",
 				"${fileDirname}\\HomeWork3_2.c",
 				"${fileDirname}\\main.c",
-				"${fileDirname}\\PlayerStatus.c",
+				"${fileDirname}\\Player.c",
 				"${fileDirname}\\Tournament.c",
 				"-o",
 				"${fileDirname}\\ChessSystem.exe"
