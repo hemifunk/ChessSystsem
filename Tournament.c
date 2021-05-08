@@ -1,57 +1,127 @@
-#include "Game.h"
 #include "Tournament.h"
+#include "Game.h"
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
-int copyKey(void* id)
+struct Tournament_t
 {
-    int *new_id=malloc(sizeof(int));
-    if(new_id==NULL)
-        return NULL;
-    *new_id=*(int*)id;
-    return new_id;
-}
-void freeKey(void* id)
+	int id;
+	char* location;
+	Winner winner;
+	bool has_finished;
+	int max_games_per_player;
+	Map games;
+	Map players;
+};
+
+static void* intCopy(void* id)
 {
-    free(id);
-}
-int compareKeys(void* n1, void* n2)
-{
-    int x=*(int*)n1;
-    int y=*(int*)n2;
-    return x-y;
-}
-Tournament createTournament()
-{
-    Tournament tournament=malloc(sizeof(Tournament));
-    if(tournament==NULL)
-        return NULL;
-    return tournament;
+    if(id == NULL)
+    {
+		return NULL;
+	}
+
+	int* copy = malloc(sizeof(int));
+
+	assert(copy != NULL);
+
+	if (copy == NULL)
+    {
+		return NULL;
+    }
+
+	*copy = *(int*)id;
+
+	return copy;
 }
 
-void destroyTournament(Tournament tournament)
+static void intFree(void* id)
 {
-    free(tournament->location_tournament);
-    mapDestroy(tournament->Games);
-    mapDestroy(tournament->Players_Results);
-    free(tournament);
+	free(id);
 }
 
-Tournament copyTournament(Tournament tournament)
+static int intCompare(void* left, void* right)
 {
-    if(tournament==NULL)
-        return NULL;
-    Tournament new_tournament=createTournament();
-    new_tournament->id_tournament=tournament->id_tournament;
-    new_tournament->status_tournament=tournament->status_tournament;
-    new_tournament->won_the_tournament=tournament->won_the_tournament;
-    new_tournament->max_games_per_player=tournament->max_games_per_player;
-    strcpy(new_tournament->location_tournament,tournament->location_tournament);
-    new_tournament->Games=mapCopy(tournament->Games);
-    if(new_tournament->Games==NULL)
-        return NULL;
-    new_tournament->Players_Results=mapCopy(tournament->Players_Results);
-    if(new_tournament->Players_Results==NULL)
-        return NULL;
-    return new_tournament;
+	assert(left != NULL && right != NULL);
+
+	if (left == NULL || right == NULL)
+	{
+		return 0;
+	}
+
+	int left_val = *(int*)left;
+	int right_val = *(int*)right;
+
+	return left_val - right_val;
+}
+
+Tournament tournamentCreate()
+{
+	Tournament tournament = malloc(sizeof(Tournament));
+
+	if (tournament == NULL)
+    {
+		return NULL;
+    }
+
+	tournament->games = mapCreate(gameCopy, intCopy, gameDestroy, intFree, intCompare);
+	tournament->players = mapCreate(playerCopy, intCopy, playerDestroy, intFree, intCompare);
+
+    if(tournament->games == NULL || tournament->players == NULL)
+    {
+		tournamentDestroy(tournament);
+		return NULL;
+	}
+
+	tournament->id = -1;
+	tournament->has_finished = false;
+	tournament->location = NULL;
+	tournament->max_games_per_player = 0;
+
+	tournament->winner = UNINITIALIZED;
+
+	return tournament;
+}
+
+void tournamentDestroy(Tournament tournament)
+{
+	free(tournament->location);
+	mapDestroy(tournament->games);
+	mapDestroy(tournament->players);
+	free(tournament);
+}
+
+Tournament tournamentCopy(Tournament tournament)
+{
+	if (tournament == NULL)
+    {
+		return NULL;
+    }
+
+	Tournament copy = tournamentCreate();
+
+    if(copy == NULL)
+    {
+		return NULL;
+	}
+
+	copy->games = mapCopy(tournament->games);
+	copy->players = mapCopy(tournament->players);
+	copy->location = malloc(strlen(tournament->location));
+
+	if (copy->games == NULL || copy->players == NULL || copy->location == NULL)
+    {
+		tournamentDestroy(copy);
+		return NULL;
+    }
+
+	strcpy(copy->location, tournament->location);
+
+	copy->id = tournament->id;
+	copy->has_finished = tournament->has_finished;
+	copy->winner = tournament->winner;
+	copy->max_games_per_player = tournament->max_games_per_player;
+
+	return copy;
 }
