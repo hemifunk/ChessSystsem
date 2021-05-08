@@ -4,34 +4,17 @@
 
 struct Game_t
 {
-	int id;
+	int id; //todo: remove, not neccecery
 	int player1_id;
 	int player2_id;
 	int time;
 	Winner winner;
 };
 
-static void setResult(ChessResult* result, ChessResult value)
+Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner)	
 {
-	if (result == NULL)
+	if (id <= 0 || player1_id <= 0 || player2_id <= 0 || time <= 0)
 	{
-		return;
-	}
-
-	*result = value;
-}
-
-Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner, ChessResult* result)	
-{
-	if (id <= 0 || player1_id <= 0 || player2_id <= 0)
-	{
-		setResult(result, CHESS_INVALID_ID);
-		return NULL;
-	}
-
-	if(time <= 0)
-	{
-		setResult(result, CHESS_INVALID_PLAY_TIME);
 		return NULL;
 	}
 
@@ -39,7 +22,6 @@ Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner,
 
 	if (game == NULL)
 	{
-		setResult(result, CHESS_OUT_OF_MEMORY);
 		return NULL;
 	}
 
@@ -64,13 +46,7 @@ Game gameCopy(Game game)
 		return NULL;
     }
 
-	Game copy = gameCreate();
-
-	copy->id = game->id;
-	copy->player1_id = game->player1_id;
-	copy->player2_id = game->player2_id;
-	copy->time = game->time;
-	copy->winner = game->winner;
+	Game copy = gameCreate(game->id, game->player1_id, game->player2_id, game->time, game->winner);
 
 	return copy;
 }
@@ -104,9 +80,11 @@ int gameGetId(Game game)
 
 Winner gameGetWinner(Game game)
 {
-    if(game == NULL)
-    {
-		return UNINITIALIZED;
+	assert(game != NULL);
+
+	if(game == NULL)
+	{
+		return DRAW;
 	}
 
 	return game->winner;

@@ -1,6 +1,6 @@
 #include "tournament.h"
-#include "generics.h"
 #include "game.h"
+#include "generics.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,24 +9,176 @@ struct Tournament_t
 {
 	int id;
 	int winner_id;
-	const char* location;
+	char* location;
 	bool has_finished;
 	int max_games_per_player;
 	Map games;
 	Map players;
 };
 
-static void setResult(ChessResult* result, ChessResult value)
+Tournament tournamentCreate(int id, int max_games_per_player, const char* location)
 {
-	if(result == NULL)
+	if (id <= 0 || max_games_per_player <= 0 || location == NULL || tournamentIsLocationValid(location) == false)
+	{
+		return NULL;
+	}
+
+	Tournament tournament = malloc(sizeof(struct Tournament_t));
+
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
+	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
+	tournament->location = strdup(location);
+
+	if (tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
+	{
+		tournamentDestroy(tournament);
+		return NULL;
+	}
+
+	tournament->id = id;
+	tournament->winner_id = 0;
+	tournament->has_finished = false;
+	tournament->max_games_per_player = max_games_per_player;
+
+	return tournament;
+}
+
+void tournamentDestroy(Tournament tournament)
+{
+	free(tournament->location);
+	mapDestroy(tournament->games);
+	mapDestroy(tournament->players);
+	free(tournament);
+}
+
+Tournament tournamentCopy(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	Tournament copy = tournamentCreate(tournament->id, tournament->max_games_per_player, tournament->location);
+
+	if (copy == NULL)
+	{
+		return NULL;
+	}
+
+	mapDestroy(copy->games);
+	mapDestroy(copy->players);
+
+	copy->games = mapCopy(tournament->games);
+	copy->players = mapCopy(tournament->players);
+
+	if (copy->games == NULL || copy->players == NULL)
+	{
+		tournamentDestroy(copy);
+		return NULL;
+	}
+
+	copy->has_finished = tournament->has_finished;
+	copy->winner_id = tournament->winner_id;
+
+	return copy;
+}
+
+int tournamentGetId(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return -1;
+	}
+
+	return tournament->id;
+}
+
+int tournamentGetWinnerId(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return -1;
+	}
+
+	return tournament->winner_id;
+}
+
+const char* tournamentGetLocation(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	return tournament->location;
+}
+
+bool tournamentGetHasFinished(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	if (tournament == NULL)
+	{
+		return false;
+	}
+
+	return tournament->has_finished;
+}
+
+int tournamentGetMaxGamesPerPlayer(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return -1;
+	}
+
+	return tournament->max_games_per_player;
+}
+
+Map tournamentGetGames(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	return tournament->games;
+}
+
+Map tournamentGetPlayers(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	return tournament->players;
+}
+
+void tournamentFinish(Tournament tournament)
+{
+	if (tournament == NULL)
 	{
 		return;
 	}
 
-	*result = value;
+	if (tournament->has_finished)
+	{
+		return;
+	}
+
+	//todo: find winner
+	//todo: set winner
+
+	tournament->has_finished = true;
 }
 
-static bool isLocationValid(char* location)
+bool tournamentIsLocationValid(const char* location)
 {
 	if (location == NULL)
 	{
@@ -35,7 +187,7 @@ static bool isLocationValid(char* location)
 
 	char current = location[0];
 
-	if ((current >= 'A' && current <=> 'Z') == false)
+	if ((current >= 'A' && current <= 'Z') == false)
 	{
 		return false;
 	}
@@ -57,183 +209,65 @@ static bool isLocationValid(char* location)
 	return true;
 }
 
-Tournament tournamentCreate(int id, int max_games_per_player, const char* location, ChessResult* result)
+bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Winner winner, int time)
 {
-	if(id <= 0)
-	{
-		setResult(result, CHESS_INVALID_ID);
-		return NULL;
-	}
-
-	if(max_games_per_player <= 0)
-	{
-		setResult(result, CHESS_INVALID_MAX_GAMES);
-		return NULL;
-	}
-
-	if(location == NULL || isLocationValid(location) == false)
-	{
-		setResult(result, CHESS_INVALID_LOCATION);
-		return NULL;
-	}
-
-	Tournament tournament = malloc(sizeof(struct Tournament_t));
-
-	if(tournament == NULL)
-	{
-		setResult(result, CHESS_OUT_OF_MEMORY);
-		return NULL;
-	}
-
-	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
-	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
-	tournament->location = strdup(location);
-
-	if(tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
-    {
-		tournamentDestroy(tournament);
-
-		setResult(result, CHESS_OUT_OF_MEMORY);
-		return NULL;
-	}
-
-	tournament->id = id;
-	tournament->winner_id = 0;
-	tournament->has_finished = false;
-	tournament->max_games_per_player = max_games_per_player;
-
-	setResult(result, CHESS_SUCCESS);
-	return tournament;
-}
-
-void tournamentDestroy(Tournament tournament)
-{
-	free(tournament->location);
-	mapDestroy(tournament->games);
-	mapDestroy(tournament->players);
-	free(tournament);
-}
-
-Tournament tournamentCopy(Tournament tournament)
-{
-	if (tournament == NULL)
-    {
-		return NULL;
-    }
-
-	Tournament copy = tournamentCreate();
-
-    if(copy == NULL)
-    {
-		return NULL;
-	}
-
-	copy->games = mapCopy(tournament->games);
-	copy->players = mapCopy(tournament->players);
-	copy->location = malloc(strlen(tournament->location));
-
-	if (copy->games == NULL || copy->players == NULL || copy->location == NULL)
-    {
-		tournamentDestroy(copy);
-		return NULL;
-    }
-
-	strcpy(copy->location, tournament->location);
-
-	copy->id = tournament->id;
-	copy->winner_id = tournament->winner_id;
-	copy->has_finished = tournament->has_finished;
-	copy->max_games_per_player = tournament->max_games_per_player;
-
-	return copy;
-}
-
-int tournamentGetId(Tournament tournament)
-{
-	if(Tournament == NULL)
-	{
-		return -1;
-	}
-
-	return tournament->id;
-}
-
-int tournamentGetWinnerId(Tournament tournament)
-{
-	if (Tournament == NULL)
-	{
-		return -1;
-	}
-
-	return tournament->winner_id;
-}
-
-const char* tournamentGetLocation(Tournament tournament)
-{
-	if (Tournament == NULL)
-	{
-		return NULL;
-	}
-
-	return tournament->location;
-}
-
-bool tournamentGetHasFinished(Tournament tournament)
-{
-	assert(tournament != NULL);
-
-	if(tournament == NULL)
+	if(tournamentHasGame(tournament, player1_id, player2_id))
 	{
 		return false;
 	}
 
-	return tournament->has_finished;
+	Game game = gameCreate(game_id, player1_id, player2_id, time, winner);
+
+	if(game == NULL)
+	{
+		return false;
+	}
+
+	int game_id = mapGetSize(tournament->games) + 1;
+
+	if (mapPut(tournament->games, &game_id, game) != MAP_SUCCESS)
+	{
+		gameDestroy(game);
+		return false;
+	}
+
+	gameDestroy(game);
+	return true;
 }
 
-int tournamentGetMaxGamesPerPlayer(Tournament tournament)
+bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id)
 {
-	if(tournament == NULL)
+	MAP_FOREACH(int*, i, tournament->games)
 	{
-		return -1;
+		Game current = mapGet(tournament->games, i);
+
+		if (gameGetPlayerId(current, PLAYER_1) == player1_id && gameGetPlayerId(current, PLAYER_2) == player2_id)
+		{
+			return true;
+		}
+
+		if (gameGetPlayerId(current, PLAYER_1) == player2_id && gameGetPlayerId(current, PLAYER_2) == player1_id)
+		{
+			return true;
+		}
 	}
 
-	return tournament->max_games_per_player;
+	return false;
 }
 
-Map tournamentGetGames(Tournament tournament)
+int tournamentGetNumGames(Tournament tournament, int player_id)
 {
-	if(tournament == NULL)
+	int count = 0;
+
+	MAP_FOREACH(int*, i, tournament->games)
 	{
-		return NULL;
+		Game current = mapGet(tournament->games, i);
+
+		if (gameGetPlayerId(current, PLAYER_1) == player_id || gameGetPlayerId(current, PLAYER_2) == player_id)
+		{
+			count += 1;
+		}
 	}
 
-	return tournament->games;
-}
-
-Map tournamentGetPlayers(Tournament tournament)
-{
-	if (tournament == NULL)
-	{
-		return NULL;
-	}
-
-	return tournament->players;
-}
-
-void tournamentFinish(Tournament tournament)
-{
-	if(tournament == NULL || )
-	{
-		return;
-	}
-
-	if(tournament->has_finished)
-	{
-		return;
-	}
-
-	//todo: find winner
-	//todo: set winner
-
-	tournament->has_finished = true;
+	return count;
 }

@@ -12,7 +12,7 @@ typedef enum
 typedef struct Game_t* Game;
 
 /** Allocates a new game */
-Game gameCreate();
+Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner);
 
 /** Frees an existing game*/
 void gameDestroy(Game game);

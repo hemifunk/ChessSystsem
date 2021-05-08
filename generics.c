@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "player.h"
 #include "game.h"
 #include "tournament.h"
@@ -45,7 +47,7 @@ void* genericGameCopy(void* game)
 		return NULL;
 	}
 
-	Player copy = gameCopy(game);
+	Game copy = gameCopy(game);
 
 	assert(copy != NULL);
 
@@ -59,7 +61,7 @@ void* genericTournamentCopy(void* tournament)
 		return NULL;
 	}
 
-	Player copy = tournamentCopy(tournament);
+	Tournament copy = tournamentCopy(tournament);
 
 	assert(copy != NULL);
 

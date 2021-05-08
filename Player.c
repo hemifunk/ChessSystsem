@@ -5,39 +5,27 @@
 
 struct Player_t
 {
-    int id;
-    int num_wins;
-    int num_loses;
-    int num_draws;
-    int total_play_time;
-    int num_games;
+	int id;
+	int num_wins;
+	int num_loses;
+	int num_draws;
+	int total_play_time;
+	int num_games;
 };
 
-static void setResult(ChessResult* result, ChessResult value)
+Player playerCreate(int id)
 {
-	if (result == NULL)
+	if (id <= 0)
 	{
-		return;
-	}
-
-	*result = value;
-}
-
-Player playerCreate(int id, ChessResult* result)
-{
-	if(id <= 0)
-	{
-		setResult(result, CHESS_INVALID_ID);
 		return NULL;
 	}
 
 	Player player = malloc(sizeof(struct Player_t));
 
-	if(player==NULL)
+	if (player == NULL)
 	{
-		setResult(result, CHESS_OUT_OF_MEMORY);
 		return NULL;
-    }
+	}
 
 	player->id = id;
 	player->num_draws = 0;
@@ -46,57 +34,55 @@ Player playerCreate(int id, ChessResult* result)
 	player->num_wins = 0;
 	player->total_play_time = 0;
 
-	setResult(result, CHESS_SUCCESS);
 	return player;
 }
 
 void playerDestroy(Player player)
 {
-    free(player);
+	free(player);
 }
 
 Player playerCopy(Player player)
 {
-    if(player==NULL)
-    {
-        return NULL;
-    }
-
-    Player copy = playerCreate();
-
-    if(copy == NULL)
-    {
+	if (player == NULL)
+	{
 		return NULL;
 	}
 
-    copy->id=copy->id;
-    copy->num_wins=player->num_wins;
-    copy->num_loses=player->num_loses;
-    copy->num_draws=player->num_draws;
-    copy->total_play_time=player->total_play_time;
-    copy->num_games=player->num_games;
+	Player copy = playerCreate(player->id);
 
-    return copy;
+	if (copy == NULL)
+	{
+		return NULL;
+	}
+
+	copy->num_wins = player->num_wins;
+	copy->num_loses = player->num_loses;
+	copy->num_draws = player->num_draws;
+	copy->total_play_time = player->total_play_time;
+	copy->num_games = player->num_games;
+
+	return copy;
 }
 
 int playerGetId(Player player)
 {
-    if(player == NULL)
-    {
+	if (player == NULL)
+	{
 		return -1;
 	}
 
-    return player->id;
+	return player->id;
 }
 
 int playerGetNumWins(Player player)
 {
-    if(player == NULL)
-    {
+	if (player == NULL)
+	{
 		return -1;
 	}
 
-    return player->num_wins;
+	return player->num_wins;
 }
 
 void playerSetNumWins(Player player, int num_wins)
@@ -104,7 +90,7 @@ void playerSetNumWins(Player player, int num_wins)
 	assert(player != NULL);
 	assert(num_wins >= 0);
 
-	player->num_wins=num_wins;
+	player->num_wins = num_wins;
 }
 
 int playerGetNumLoses(Player player)
@@ -122,7 +108,7 @@ void playerSetNumLoses(Player player, int num_loses)
 	assert(player != NULL);
 	assert(num_loses >= 0);
 
-	player->num_loses=num_loses;
+	player->num_loses = num_loses;
 }
 
 int playerGetNumDraws(Player player)
@@ -140,7 +126,7 @@ void playerSetNumDraws(Player player, int num_draws)
 	assert(player != NULL);
 	assert(num_draws >= 0);
 
-	player->num_draws=num_draws;
+	player->num_draws = num_draws;
 }
 
 int playerGetTotalPlayTime(Player player)
@@ -158,7 +144,7 @@ void playerSetTotalGameTime(Player player, int time)
 	assert(player != NULL);
 	assert(time >= 0);
 
-	player->total_play_time=time;
+	player->total_play_time = time;
 }
 
 int playerGetNumGames(Player player)
@@ -176,5 +162,5 @@ void playerSetNumGames(Player player, int num_games)
 	assert(player != NULL);
 	assert(num_games >= 0);
 
-	player->num_games=num_games;
+	player->num_games = num_games;
 }
