@@ -10,7 +10,7 @@
 typedef struct Tournament_t* Tournament;
 
 /**Creates new tournament*/
-Tournament tournamentCreate();
+Tournament tournamentCreate(int id, int max_games_per_player, const char* location, ChessResult* result);
 /**Destroys a given tournament*/
 void tournamentDestroy(Tournament tournament);
 /**Copies a given tournament*/

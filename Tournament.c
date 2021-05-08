@@ -9,21 +9,99 @@ struct Tournament_t
 {
 	int id;
 	int winner_id;
-	char* location;
+	const char* location;
 	bool has_finished;
 	int max_games_per_player;
 	Map games;
 	Map players;
 };
 
-Tournament tournamentCreate()
+static void setResult(ChessResult* result, ChessResult value)
 {
-	Tournament tournament = malloc(sizeof(Tournament));
+	if(result == NULL)
+	{
+		return;
+	}
 
-	if (tournament == NULL)
-    {
+	*result = value;
+}
+
+static bool isLocationValid(char* location)
+{
+	if (location == NULL)
+	{
+		return false;
+	}
+
+	char current = location[0];
+
+	if ((current >= 'A' && current <=> 'Z') == false)
+	{
+		return false;
+	}
+
+	int i = 1;
+
+	while (location[i] != '\0')
+	{
+		current = location[i];
+
+		if (((current >= 'a' && current <= 'z') || current == ' ') == false)
+		{
+			return false;
+		}
+
+		i++;
+	}
+
+	return true;
+}
+
+Tournament tournamentCreate(int id, int max_games_per_player, const char* location, ChessResult* result)
+{
+	if(tournament == NULL)
+	{
+		setResult(result, CHESS_NULL_ARGUMENT);
 		return NULL;
-    }
+	}
+
+	if(id < 0)
+	{
+		setResult(result, CHESS_INVALID_ID);
+		return NULL;
+	}
+
+	if(max_games_per_player <= 0)
+	{
+		setResult(result, CHESS_INVALID_MAX_GAMES);
+		return NULL;
+	}
+
+	if(location == NULL || isLocationValid(location) == false)
+	{
+		setResult(result, CHESS_INVALID_LOCATION);
+		return NULL;
+	}
+
+	int location_size = strlen(location);
+
+	char* location_copy = malloc(location_size + 1) * sizeof(char));
+
+	if(location_copy == NULL)
+	{
+		setResult(result, CHESS_INVALID_LOCATION);
+		return NULL;
+	}
+
+	strcpy(location_copy, location);
+
+	Tournament tournament = malloc(sizeof(struct Tournament_t));
+
+	if(tournament == NULL)
+	{
+		setResult(result, CHESS_OUT_OF_MEMORY);
+		return NULL;
+	}
 
 	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
 	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
@@ -31,15 +109,18 @@ Tournament tournamentCreate()
     if(tournament->games == NULL || tournament->players == NULL)
     {
 		tournamentDestroy(tournament);
+
+		setResult(result, CHESS_OUT_OF_MEMORY);
 		return NULL;
 	}
 
-	tournament->id = -1;
+	tournament->id = id;
 	tournament->winner_id = -1;
 	tournament->has_finished = false;
-	tournament->location = NULL;
-	tournament->max_games_per_player = 0;
+	tournament->location = location_copy;
+	tournament->max_games_per_player = max_games_per_player;
 
+	setResult(result, CHESS_SUCCESS);
 	return tournament;
 }
 
@@ -95,14 +176,6 @@ int tournamentGetId(Tournament tournament)
 	return tournament->id;
 }
 
-void tournamentSetId(Tournament tournament, int id)
-{
-	assert(tournament != NULL);
-	assert(id >= 0);
-
-	tournament->id = id;
-}
-
 int tournamentGetWinnerId(Tournament tournament)
 {
 	if (Tournament == NULL)
@@ -121,7 +194,7 @@ void tournamentSetWinnerId(Tournament tournament, int winner_id)
 	tournament->winner_id = winner_id;
 }
 
-char* tournamentGetLocation(Tournament tournament)
+const char* tournamentGetLocation(Tournament tournament)
 {
 	if (Tournament == NULL)
 	{
@@ -129,14 +202,6 @@ char* tournamentGetLocation(Tournament tournament)
 	}
 
 	return tournament->location;
-}
-
-void tournamentSetLocation(Tournament tournament, char* location)
-{
-	assert(tournament != NULL);
-	assert(location != NULL);
-
-	tournament->location = location;
 }
 
 bool tournamentGetHasFinished(Tournament tournament)
@@ -166,14 +231,6 @@ int tournamentGetMaxGamesPerPlayer(Tournament tournament)
 	}
 
 	return tournament->max_games_per_player;
-}
-
-void tournamentSetMaxGamesPerPlayer(Tournament tournament, int max_games_per_player)
-{
-	assert(tournament != NULL);
-	assert(max_games_per_player >= 0);
-
-	tournament->max_games_per_player = max_games_per_player;
 }
 
 Map tournamentGetGames(Tournament tournament)
