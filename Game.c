@@ -8,23 +8,48 @@ struct Game_t
 	int player1_id;
 	int player2_id;
 	int time;
-	GameWinner winner;
+	Winner winner;
 };
 
-Game gameCreate()
+static void setResult(ChessResult* result, ChessResult value)
 {
-	Game new_game = malloc(sizeof(struct Game_t));
+	if (result == NULL)
+	{
+		return;
+	}
 
-	if (new_game == NULL)
+	*result = value;
+}
+
+Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner, ChessResult* result)	
+{
+	if (id <= 0 || player1_id <= 0 || player2_id <= 0)
+	{
+		setResult(result, CHESS_INVALID_ID);
 		return NULL;
+	}
 
-	new_game->id = -1;
-	new_game->player1_id = -1;
-	new_game->player2_id = -1;
-	new_game->time = 0;
-	new_game->winner = UNINITIALIZED;
+	if(time <= 0)
+	{
+		setResult(result, CHESS_INVALID_PLAY_TIME);
+		return NULL;
+	}
 
-	return new_game;
+	Game game = malloc(sizeof(struct Game_t));
+
+	if (game == NULL)
+	{
+		setResult(result, CHESS_OUT_OF_MEMORY);
+		return NULL;
+	}
+
+	game->id = id;
+	game->player1_id = player1_id;
+	game->player2_id = player2_id;
+	game->time = time;
+	game->winner = winner;
+
+	return game;
 }
 
 void gameDestroy(Game game)
@@ -67,25 +92,6 @@ int gameGetPlayerId(Game game, Player_Index player)
     }
 }
 
-void gameSetPlayerId(Game game, int id, Player_Index player)
-{
-	assert(game != NULL);
-
-    if(game == NULL)
-    {
-		return;
-	}
-
-	if (player == PLAYER_1)
-    {
-		game->player1_id = id;
-    }
-	else
-    {
-		game->player2_id = id;
-    }
-}
-
 int gameGetId(Game game)
 {
     if(game == NULL)
@@ -96,15 +102,7 @@ int gameGetId(Game game)
 	return game->id;
 }
 
-void gameSetId(Game game, int id)
-{
-	assert(game != NULL);
-	assert(id >= 0);
-
-	game->id = id;
-}
-
-GameWinner gameGetWinner(Game game)
+Winner gameGetWinner(Game game)
 {
     if(game == NULL)
     {
@@ -112,13 +110,6 @@ GameWinner gameGetWinner(Game game)
 	}
 
 	return game->winner;
-}
-
-void gameSetWinner(Game game, GameWinner winner)
-{
-	assert(game != NULL);
-
-	game->winner = winner;
 }
 
 int gameGetTime(Game game)
@@ -129,12 +120,4 @@ int gameGetTime(Game game)
 	}
 
 	return game->time;
-}
-
-void gameSetTime(Game game, int time)
-{
-	assert(game != NULL);
-	assert(time >= 0);
-
-	game->time = time;
 }
