@@ -93,8 +93,8 @@ static bool isGameExists(Tournament tournament, int player_id1, int player_id2)
     {
         int *ptr=&i;
         Game requested_game=mapGet(tournament->Games,ptr);
-        if(getIdPlayer(requested_game,PLAYER_1)==player_id1&&
-        getIdPlayer(requested_game,PLAYER_2)==player_id2)
+        if(gameGetPlayerId(requested_game,PLAYER_1)==player_id1&&
+        gameGetPlayerId(requested_game,PLAYER_2)==player_id2)
         {
             return true;
         }
@@ -109,14 +109,14 @@ static bool isPlayedMaxGames(Tournament tournament, int player_id1, int player_i
     {
         int *ptr=&i;
         Game requested_game=mapGet(tournament->Games,ptr);
-        int p1=getIdPlayer(requested_game,PLAYER_1);
-        int p2=getIdPlayer(requested_game,PLAYER_2);
+        int p1=gameGetPlayerId(requested_game,PLAYER_1);
+        int p2=gameGetPlayerId(requested_game,PLAYER_2);
         if(p1==player_id1||p2==player_id1)
         {
             counter1++;
         }
-        int p3=getIdPlayer(requested_game,PLAYER_1);
-        int p4=getIdPlayer(requested_game,PLAYER_2);
+        int p3=gameGetPlayerId(requested_game,PLAYER_1);
+        int p4=gameGetPlayerId(requested_game,PLAYER_2);
         if(p3==player_id2||p4==player_id2)
         {
             counter2++;
@@ -225,12 +225,12 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
     Game new_game=gameCreate();
     if(new_game==NULL)
         return CHESS_OUT_OF_MEMORY;
-    setIdGame(new_game,mapGetSize(requested_tour->Games));
-    setIdPlayer(new_game,first_player,PLAYER_1); 
-    setIdPlayer(new_game,second_player,PLAYER_2);
-    setTimeGame(new_game,play_time);
-    setWinner(new_game,winner);
-    int id_game=getIdGame(new_game);
+    gameSetId(new_game,mapGetSize(requested_tour->Games));
+    gameSetPlayerId(new_game,first_player,PLAYER_1); 
+    gameSetPlayerId(new_game,second_player,PLAYER_2);
+    gameSetTime(new_game,play_time);
+    gameSetWinner(new_game,winner);
+    int id_game=gameGetId(new_game);
     int *ptr_game_id=&id_game;
     if(mapPut(requested_tour->Games,ptr_game_id,new_game)!=MAP_SUCCESS)
     {

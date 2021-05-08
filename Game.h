@@ -20,27 +20,27 @@ void gameDestroy(Game game);
 Game gameCopy(Game game);
 
 /** Returns the id of player*/
-int getIdPlayer(Game game, PLAYER_INDEX player);
+int gameGetPlayerId(Game game, PLAYER_INDEX player);
 
 /**Changes the id of player*/
-void setIdPlayer(Game game, int id, PLAYER_INDEX player);
+void gameSetPlayerId(Game game, int id, PLAYER_INDEX player);
 
 /** Returns the id of game*/
-int getIdGame(Game game);
+int gameGetId(Game game);
 
 /**Changes the id of game */
-void setIdGame(Game game, int id);
+void gameSetId(Game game, int id);
 
 /**Returns the winner */
 Winner getWinner(Game game);
 
 /**Changes the  winner */
-void setWinner(Game game, Winner winner);
+void gameSetWinner(Game game, Winner winner);
 
 /**Returns the winner */
-int getTimeGame(Game game);
+int gameGetTime(Game game);
 
 /**Changes the  winner*/
-void setTimeGame(Game game, int time);
+void gameSetTime(Game game, int time);
 
 #endif
