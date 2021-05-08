@@ -12,7 +12,7 @@ typedef struct Tournament_t* Tournament;
 /**Creates new tournament*/
 Tournament tournamentCreate();
 /**Destroys a given tournament*/
-void destroyTournament(Tournament tournament);
+void tournamentDestroy(Tournament tournament);
 /**Copies a given tournament*/
-Tournament copyTournament(Tournament tournament);
+Tournament tournamentCopy(Tournament tournament);
 #endif

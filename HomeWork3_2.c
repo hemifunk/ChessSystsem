@@ -1,4 +1,4 @@
-#include "Tournament.h"
+#include "tournament.h"
 #include "chessSystem.h"
 #include "map.h"
 #include <assert.h>

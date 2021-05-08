@@ -1,5 +1,6 @@
-#include "Tournament.h"
-#include "Game.h"
+#include "tournament.h"
+#include "generics.h"
+#include "game.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,47 +16,6 @@ struct Tournament_t
 	Map players;
 };
 
-static void* intCopy(void* id)
-{
-    if(id == NULL)
-    {
-		return NULL;
-	}
-
-	int* copy = malloc(sizeof(int));
-
-	assert(copy != NULL);
-
-	if (copy == NULL)
-    {
-		return NULL;
-    }
-
-	*copy = *(int*)id;
-
-	return copy;
-}
-
-static void intFree(void* id)
-{
-	free(id);
-}
-
-static int intCompare(void* left, void* right)
-{
-	assert(left != NULL && right != NULL);
-
-	if (left == NULL || right == NULL)
-	{
-		return 0;
-	}
-
-	int left_val = *(int*)left;
-	int right_val = *(int*)right;
-
-	return left_val - right_val;
-}
-
 Tournament tournamentCreate()
 {
 	Tournament tournament = malloc(sizeof(Tournament));
@@ -65,8 +25,8 @@ Tournament tournamentCreate()
 		return NULL;
     }
 
-	tournament->games = mapCreate(gameCopy, intCopy, gameDestroy, intFree, intCompare);
-	tournament->players = mapCreate(playerCopy, intCopy, playerDestroy, intFree, intCompare);
+	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
+	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
 
     if(tournament->games == NULL || tournament->players == NULL)
     {

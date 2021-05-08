@@ -24,12 +24,12 @@ typedef enum {
 /*
     Type for specifying who is the winner in a certain match
 */
-typedef enum 
+typedef enum
 {
-    UNINITIALIZED,
-    FIRST_PLAYER,
-    SECOND_PLAYER,
-    DRAW
+	FIRST_PLAYER,
+	SECOND_PLAYER,
+	DRAW,
+	UNINITIALIZED,
 } Winner;
 
 /** Type for representing a chess system that organizes chess tournaments */
