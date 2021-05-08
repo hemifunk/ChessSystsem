@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "chessSystem.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -12,22 +13,40 @@ struct Player_t
     int num_games;
 };
 
-Player playerCreate()
+static void setResult(ChessResult* result, ChessResult value)
 {
+	if (result == NULL)
+	{
+		return;
+	}
+
+	*result = value;
+}
+
+Player playerCreate(int id, ChessResult* result)
+{
+	if(id <= 0)
+	{
+		setResult(result, CHESS_INVALID_ID);
+		return NULL;
+	}
+
 	Player player = malloc(sizeof(struct Player_t));
 
 	if(player==NULL)
-    {
-        return NULL;
+	{
+		setResult(result, CHESS_OUT_OF_MEMORY);
+		return NULL;
     }
 
-	player->id = -1;
+	player->id = id;
 	player->num_draws = 0;
 	player->num_games = 0;
 	player->num_loses = 0;
 	player->num_wins = 0;
 	player->total_play_time = 0;
 
+	setResult(result, CHESS_SUCCESS);
 	return player;
 }
 
@@ -68,14 +87,6 @@ int playerGetId(Player player)
 	}
 
     return player->id;
-}
-
-void playerSetId(Player player, int id)
-{
-	assert(player != NULL);
-	assert(id >= 0);
-
-	player->id=id;
 }
 
 int playerGetNumWins(Player player)

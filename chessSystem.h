@@ -28,9 +28,8 @@ typedef enum
 {
 	FIRST_PLAYER,
 	SECOND_PLAYER,
-	DRAW,
-	UNINITIALIZED,
-} GameWinner;
+	DRAW
+} Winner;
 
 /** Type for representing a chess system that organizes chess tournaments */
 typedef struct Chess_System_t *ChessSystem;
@@ -90,7 +89,7 @@ ChessResult chessAddTournament (ChessSystem chess, int tournament_id,
  *     CHESS_SUCCESS - if game was added successfully.
  */
 ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
-                         int second_player, GameWinner winner, int play_time);
+                         int second_player, Winner winner, int play_time);
 
 /**
  * chessRemoveTournament: removes the tournament and all the games played in it from the chess system.

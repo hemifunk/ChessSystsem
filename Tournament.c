@@ -59,13 +59,7 @@ static bool isLocationValid(char* location)
 
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location, ChessResult* result)
 {
-	if(tournament == NULL)
-	{
-		setResult(result, CHESS_NULL_ARGUMENT);
-		return NULL;
-	}
-
-	if(id < 0)
+	if(id <= 0)
 	{
 		setResult(result, CHESS_INVALID_ID);
 		return NULL;
@@ -83,18 +77,6 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 		return NULL;
 	}
 
-	int location_size = strlen(location);
-
-	char* location_copy = malloc(location_size + 1) * sizeof(char));
-
-	if(location_copy == NULL)
-	{
-		setResult(result, CHESS_INVALID_LOCATION);
-		return NULL;
-	}
-
-	strcpy(location_copy, location);
-
 	Tournament tournament = malloc(sizeof(struct Tournament_t));
 
 	if(tournament == NULL)
@@ -105,8 +87,9 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 
 	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
 	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
+	tournament->location = strdup(location);
 
-    if(tournament->games == NULL || tournament->players == NULL)
+	if(tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
     {
 		tournamentDestroy(tournament);
 
@@ -115,9 +98,8 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 	}
 
 	tournament->id = id;
-	tournament->winner_id = -1;
+	tournament->winner_id = 0;
 	tournament->has_finished = false;
-	tournament->location = location_copy;
 	tournament->max_games_per_player = max_games_per_player;
 
 	setResult(result, CHESS_SUCCESS);
@@ -186,14 +168,6 @@ int tournamentGetWinnerId(Tournament tournament)
 	return tournament->winner_id;
 }
 
-void tournamentSetWinnerId(Tournament tournament, int winner_id)
-{
-	assert(tournament != NULL);
-	assert(winner_id >= 0);
-
-	tournament->winner_id = winner_id;
-}
-
 const char* tournamentGetLocation(Tournament tournament)
 {
 	if (Tournament == NULL)
@@ -214,13 +188,6 @@ bool tournamentGetHasFinished(Tournament tournament)
 	}
 
 	return tournament->has_finished;
-}
-
-void tournamentSetHasFinished(Tournament tournament, bool has_finished)
-{
-	assert(tournament != NULL);
-
-	tournament->has_finished = has_finished;
 }
 
 int tournamentGetMaxGamesPerPlayer(Tournament tournament)
@@ -251,4 +218,22 @@ Map tournamentGetPlayers(Tournament tournament)
 	}
 
 	return tournament->players;
+}
+
+void tournamentFinish(Tournament tournament)
+{
+	if(tournament == NULL || )
+	{
+		return;
+	}
+
+	if(tournament->has_finished)
+	{
+		return;
+	}
+
+	//todo: find winner
+	//todo: set winner
+
+	tournament->has_finished = true;
 }

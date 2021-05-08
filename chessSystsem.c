@@ -178,7 +178,7 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 	return CHESS_SUCCESS;
 }
 
-ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player, int second_player, GameWinner winner, int play_time)
+ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (chess == NULL)
 		return CHESS_NULL_ARGUMENT;
@@ -186,7 +186,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 	if (tournament_id <= 0 || first_player <= 0 || second_player <= 0)
 		return CHESS_INVALID_ID;
 
-	if (play_time < 0)
+	if (play_time <= 0)
 		return CHESS_INVALID_PLAY_TIME;
 
 	int* ptr_id;
