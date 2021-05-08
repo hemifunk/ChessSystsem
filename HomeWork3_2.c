@@ -6,11 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define FIRST_LETTER_UPPER_CASE 'A'
-#define LAST_LETTER_UPPER_CASE 'Z'
-#define FIRST_LETTER_LOWER_CASE 'a'
-#define LAST_LETTER_LOWER_CASE 'z'
-#define SPACE_CHAR ' '
 
 struct Chess_System_t
 {
@@ -18,9 +13,9 @@ struct Chess_System_t
 	Map all_players;
 };
 
-static void emptyPlayerResult(Player player, int id_player, int time)
+static void initializePlayer(Player player, int player_id, int time)
 {
-	playerSetId(player, id_player);
+	playerSetId(player, player_id);
 	playerSetNumWins(player, 0);
 	playerSetNumDraws(player, 0);
 	playerSetNumLoses(player, 0);
@@ -43,7 +38,7 @@ static ChessResult setPlayerResults(Map Players, Tournament tournament, int id, 
 	int* ptr_id = &id;
 	if (!mapContains(Players, ptr_id))
 	{
-		emptyPlayerResult(player_result, id, time);
+		initializePlayer(player_result, id, time);
 	}
 	if (id_winner == id)
 	{
