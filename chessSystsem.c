@@ -16,9 +16,6 @@ struct Chess_System_t
 static void initializePlayer(Player player, int player_id, int time)
 {
 	playerSetId(player, player_id);
-	playerSetNumWins(player, 0);
-	playerSetNumDraws(player, 0);
-	playerSetNumLoses(player, 0);
 	playerSetNumGames(player, 1);
 	playerSetTotalGameTime(player, time);
 }
@@ -205,7 +202,7 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 	return CHESS_SUCCESS;
 }
 
-ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player, int second_player, Winner winner, int play_time)
+ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player, int second_player, GameWinner winner, int play_time)
 {
 	if (chess == NULL)
 		return CHESS_NULL_ARGUMENT;

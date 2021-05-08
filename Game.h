@@ -33,10 +33,10 @@ int gameGetId(Game game);
 void gameSetId(Game game, int id);
 
 /**Returns the winner */
-Winner getWinner(Game game);
+GameWinner getWinner(Game game);
 
 /**Changes the  winner */
-void gameSetWinner(Game game, Winner winner);
+void gameSetWinner(Game game, GameWinner winner);
 
 int gameGetTime(Game game);
 

@@ -8,7 +8,7 @@ struct Game_t
 	int player1_id;
 	int player2_id;
 	int time;
-	Winner winner;
+	GameWinner winner;
 };
 
 Game gameCreate()
@@ -104,7 +104,7 @@ void gameSetId(Game game, int id)
 	game->id = id;
 }
 
-Winner gameGetWinner(Game game)
+GameWinner gameGetWinner(Game game)
 {
     if(game == NULL)
     {
@@ -114,7 +114,7 @@ Winner gameGetWinner(Game game)
 	return game->winner;
 }
 
-void gameSetWinner(Game game, Winner winner)
+void gameSetWinner(Game game, GameWinner winner)
 {
 	assert(game != NULL);
 
