@@ -1,4 +1,5 @@
 #include "chess.h"
+#include <assert.h>
 
 int main()
 {
@@ -8,17 +9,33 @@ int main()
 
 	result = chessAddGame(chess, 1, 11, 12, DRAW, 60);
 
-	result = chessAddTournament(chess, 1, 10, "Israel");
+	assert(result == CHESS_TOURNAMENT_NOT_EXIST);
+
+	result = chessAddTournament(chess, 1, 10, "Israel tel aviv");
+
+	assert(result == CHESS_SUCCESS);
+
+	result = chessAddTournament(chess, 2, 10, "test");
+
+	assert(result == CHESS_INVALID_LOCATION);
 
 	result = chessAddGame(chess, 1, 11, 12, DRAW, 60);
 
+	assert(result == CHESS_SUCCESS);
+
+	result = chessAddGame(chess, 1, 11, 11, DRAW, 60);
+
+	assert(result == CHESS_INVALID_ID);
+
 	result = chessAddGame(chess, 1, 12, 11, DRAW, 60);
+
+	assert(result == CHESS_GAME_ALREADY_EXISTS);
 
 	result = chessAddGame(chess, 2, 11, 12, DRAW, 60);
 
-	chessDestroy(chess);
+	assert(result == CHESS_TOURNAMENT_NOT_EXIST);
 
-	printf("result: %d", result);
+	chessDestroy(chess);
 
 	return 0;
 }
