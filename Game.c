@@ -1,6 +1,6 @@
 #include "Game.h"
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 
 struct Game_t
 {
@@ -11,7 +11,7 @@ struct Game_t
 	Winner winner;
 };
 
-Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner)	
+Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner)
 {
 	if (id <= 0 || player1_id <= 0 || player2_id <= 0 || time <= 0)
 	{
@@ -42,9 +42,9 @@ void gameDestroy(Game game)
 Game gameCopy(Game game)
 {
 	if (game == NULL)
-    {
+	{
 		return NULL;
-    }
+	}
 
 	Game copy = gameCreate(game->id, game->player1_id, game->player2_id, game->time, game->winner);
 
@@ -53,25 +53,25 @@ Game gameCopy(Game game)
 
 int gameGetPlayerId(Game game, Player_Index player)
 {
-    if(game == NULL)
-    {
+	if (game == NULL)
+	{
 		return -1;
 	}
 
 	if (player == PLAYER_1)
-    {
+	{
 		return game->player1_id;
-    }
-    else
+	}
+	else
 	{
 		return game->player2_id;
-    }
+	}
 }
 
 int gameGetId(Game game)
 {
-    if(game == NULL)
-    {
+	if (game == NULL)
+	{
 		return -1;
 	}
 
@@ -82,7 +82,7 @@ Winner gameGetWinner(Game game)
 {
 	assert(game != NULL);
 
-	if(game == NULL)
+	if (game == NULL)
 	{
 		return DRAW;
 	}
@@ -92,8 +92,8 @@ Winner gameGetWinner(Game game)
 
 int gameGetTime(Game game)
 {
-    if(game == NULL)
-    {
+	if (game == NULL)
+	{
 		return -1;
 	}
 

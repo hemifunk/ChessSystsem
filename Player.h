@@ -1,5 +1,5 @@
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#ifndef _PLAYER_H
+#define _PLAYER_H
 
 typedef struct Player_t* Player;
 
@@ -14,9 +14,6 @@ Player playerCopy(Player player_status);
 
 /**Returns player's id*/
 int playerGetId(Player player);
-
-/**Sets player's id*/
-void playerSetId(Player player, int id);
 
 /**Returns number of winnings*/
 int playerGetNumWins(Player player);

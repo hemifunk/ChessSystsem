@@ -1,5 +1,5 @@
-#ifndef MAP_H_
-#define MAP_H_
+#ifndef _MAP_H
+#define _MAP_H
 
 #include <stdbool.h>
 

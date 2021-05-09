@@ -1,7 +1,7 @@
-#include "tournament.h"
 #include "chessSystem.h"
-#include "map.h"
 #include "generics.h"
+#include "map.h"
+#include "tournament.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -52,14 +52,14 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 	if (chess == NULL || chess->tournaments == NULL || chess->all_players == NULL)
 	{
 		return CHESS_NULL_ARGUMENT;
-	}	
+	}
 
-	if(tournament_id <= 0)
+	if (tournament_id <= 0)
 	{
 		return CHESS_INVALID_ID;
 	}
 
-	if(max_games_per_player <= 0)
+	if (max_games_per_player <= 0)
 	{
 		return CHESS_INVALID_MAX_GAMES;
 	}
@@ -76,7 +76,7 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 
 	Tournament tournament = tournamentCreate(tournament_id, max_games_per_player, tournament_location);
 
-	if(tournament == NULL)
+	if (tournament == NULL)
 	{
 		return CHESS_OUT_OF_MEMORY;
 	}
@@ -93,7 +93,7 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 
 ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 {
-	if(chess == NULL)
+	if (chess == NULL)
 	{
 		return CHESS_NULL_ARGUMENT;
 	}
@@ -116,7 +116,6 @@ ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 	return CHESS_SUCCESS;
 }
 
-//todo: review
 ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (chess == NULL)
@@ -141,12 +140,12 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 
 	Tournament tournament = (Tournament)mapGet(chess->tournaments, &tournament_id);
 
-	if(tournament == NULL)
+	if (tournament == NULL)
 	{
 		return CHESS_OUT_OF_MEMORY;
 	}
 
-	if(tournamentGetHasFinished(tournament))
+	if (tournamentGetHasFinished(tournament))
 	{
 		return CHESS_TOURNAMENT_ENDED;
 	}
@@ -156,17 +155,17 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_GAME_ALREADY_EXISTS;
 	}
 
-	if(tournamentGetNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (tournamentGetNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
 		return CHESS_EXCEEDED_GAMES;
 	}
 
-	if(tournamentGetNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (tournamentGetNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
 		return CHESS_EXCEEDED_GAMES;
 	}
 
-	if(tournamentAddGame(tournament, first_player, second_player, winner, play_time) == false)
+	if (tournamentAddGame(tournament, first_player, second_player, winner, play_time) == false)
 	{
 		return CHESS_OUT_OF_MEMORY;
 	}

@@ -1,9 +1,9 @@
+#include "game.h"
+#include "player.h"
+#include "tournament.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
-#include "player.h"
-#include "game.h"
-#include "tournament.h"
 
 void* genericIntCopy(void* value)
 {

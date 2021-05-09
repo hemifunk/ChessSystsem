@@ -1,5 +1,6 @@
-#ifndef TOURNAMENT_H_
-#define TOURNAMENT_H_
+#ifndef _TOURNAMENT_H
+#define _TOURNAMENT_H
+
 #include "Game.h"
 #include "Player.h"
 #include <stdbool.h>
@@ -8,13 +9,10 @@
 
 typedef struct Tournament_t* Tournament;
 
-/**Creates new tournament*/
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location);
 
-/**Destroys a given tournament*/
 void tournamentDestroy(Tournament tournament);
 
-/**Copies a given tournament*/
 Tournament tournamentCopy(Tournament tournament);
 
 bool tournamentIsLocationValid(const char* location);
@@ -30,5 +28,7 @@ int tournamentGetNumGames(Tournament tournament, int player_id);
 int tournamentGetMaxGamesPerPlayer(Tournament tournament);
 
 bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Winner winner, int time);
+
+void tournamentEnd(Tournament tournament);
 
 #endif

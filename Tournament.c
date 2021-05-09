@@ -112,36 +112,6 @@ Tournament tournamentCopy(Tournament tournament)
 	return copy;
 }
 
-int tournamentGetId(Tournament tournament)
-{
-	if (tournament == NULL)
-	{
-		return -1;
-	}
-
-	return tournament->id;
-}
-
-int tournamentGetWinnerId(Tournament tournament)
-{
-	if (tournament == NULL)
-	{
-		return -1;
-	}
-
-	return tournament->winner_id;
-}
-
-const char* tournamentGetLocation(Tournament tournament)
-{
-	if (tournament == NULL)
-	{
-		return NULL;
-	}
-
-	return tournament->location;
-}
-
 bool tournamentGetHasFinished(Tournament tournament)
 {
 	assert(tournament != NULL);
@@ -174,16 +144,6 @@ Map tournamentGetGames(Tournament tournament)
 	return tournament->games;
 }
 
-Map tournamentGetPlayers(Tournament tournament)
-{
-	if (tournament == NULL)
-	{
-		return NULL;
-	}
-
-	return tournament->players;
-}
-
 void tournamentEnd(Tournament tournament)
 {
 	if (tournament == NULL)
@@ -204,10 +164,10 @@ void tournamentEnd(Tournament tournament)
 
 		int score = playerGetNumWins(current) * 2 + playerGetNumDraws(current);
 
-		if(score >= max_score)
+		if (score >= max_score)
 		{
 			max_score = score;
-			
+
 			tournament->winner_id = playerGetId(current);
 		}
 	}
@@ -248,7 +208,7 @@ bool tournamentIsLocationValid(const char* location)
 
 bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Winner winner, int time)
 {
-	if(tournamentHasGame(tournament, player1_id, player2_id))
+	if (tournamentHasGame(tournament, player1_id, player2_id))
 	{
 		return false;
 	}
@@ -256,7 +216,7 @@ bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Wi
 	bool success = addPlayer(tournament, player1_id);
 	success &= addPlayer(tournament, player2_id);
 
-	if(success == false)
+	if (success == false)
 	{
 		return false;
 	}
@@ -267,7 +227,7 @@ bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Wi
 
 	int game_id = 0;
 
-	if(last_game == NULL)
+	if (last_game == NULL)
 	{
 		game_id = 1;
 	}
@@ -294,12 +254,12 @@ bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Wi
 
 	assert(first_player != NULL && second_player != NULL);
 
-	if(winner == FIRST_PLAYER)
+	if (winner == FIRST_PLAYER)
 	{
 		playerSetNumWins(first_player, playerGetNumWins(first_player) + 1);
 		playerSetNumLoses(second_player, playerGetNumLoses(second_player) + 1);
 	}
-	else if (winner== SECOND_PLAYER)
+	else if (winner == SECOND_PLAYER)
 	{
 		playerSetNumLoses(first_player, playerGetNumLoses(first_player) + 1);
 		playerSetNumWins(second_player, playerGetNumWins(second_player) + 1);

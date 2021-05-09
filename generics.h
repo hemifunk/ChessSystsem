@@ -1,3 +1,6 @@
+#ifndef _GENERICS_H
+#define _GENERICS_H
+
 void* genericIntCopy(void* value);
 
 void* genericPlayerCopy(void* player);
@@ -15,3 +18,5 @@ void genericGameDestroy(void* game);
 void genericTournamentDestroy(void* tournament);
 
 int genericIntCompare(void* left, void* right);
+
+#endif
