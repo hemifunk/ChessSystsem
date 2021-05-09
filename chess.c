@@ -11,7 +11,7 @@
 struct Chess_System_t
 {
 	Map tournaments;
-	Map all_players; //todo: convert to list?
+	Map all_players;
 };
 
 ChessSystem chessCreate()
@@ -125,7 +125,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	if (tournament_id <= 0 || first_player <= 0 || second_player <= 0)
+	if (tournament_id <= 0 || first_player <= 0 || second_player <= 0|| first_player==second_player)
 	{
 		return CHESS_INVALID_ID;
 	}
@@ -154,12 +154,12 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_GAME_ALREADY_EXISTS;
 	}
 
-	if (tournamentGetNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (playerNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
 		return CHESS_EXCEEDED_GAMES;
 	}
 
-	if (tournamentGetNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (playerNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
 		return CHESS_EXCEEDED_GAMES;
 	}

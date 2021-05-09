@@ -1,8 +1,9 @@
 #ifndef _TOURNAMENT_H
 #define _TOURNAMENT_H
 
-#include "Game.h"
-#include "Player.h"
+#include "game.h"
+#include "list.h"
+#include "player.h"
 #include <stdbool.h>
 #include <string.h>
 #include "map.h"
@@ -17,13 +18,13 @@ Tournament tournamentCopy(Tournament tournament);
 
 bool tournamentIsLocationValid(const char* location);
 
-Map tournamentGetGames(Tournament tournament);
+List tournamentGetGames(Tournament tournament);
 
 bool tournamentHasEnded(Tournament tournament);
 
 bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id);
 
-int tournamentGetNumGames(Tournament tournament, int player_id);
+int playerNumGames(Tournament tournament, int player_id);
 
 int tournamentGetMaxGamesPerPlayer(Tournament tournament);
 
