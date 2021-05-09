@@ -1,6 +1,7 @@
 #include "tournament.h"
 #include "game.h"
 #include "generics.h"
+#include "list.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,33 +13,73 @@ struct Tournament_t
 	char* location;
 	bool has_finished;
 	int max_games_per_player;
-	Map games; //todo: replace with list?
-	Map players; //todo: replace with list?
+	List games;
+	Map players;
 };
 
-static Player tournamentAddPlayer(Tournament tournament, int id)
+static bool updatePlayers(Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
+{
+	if (first_player <= 0 || second_player <= 0 || play_time <= 0)
+	{
+		return false;
+	}
+
+	Player first = mapGet(tournament->players, &first_player);
+	Player second = mapGet(tournament->players, &second_player);
+
+	if (first == NULL || second == NULL)
+	{
+		return false;
+	}
+
+	playerSetTotalGameTime(first, playerGetTotalPlayTime(first) + play_time);
+	playerSetTotalGameTime(second, playerGetTotalPlayTime(second) + play_time);
+
+	playerSetNumGames(first, playerGetNumGames(first) + 1);
+	playerSetNumGames(second, playerGetNumGames(second) + 1);
+
+	if (winner == FIRST_PLAYER)
+	{
+		playerSetNumWins(first, playerGetNumWins(first) + 1);
+		playerSetNumLoses(second, playerGetNumLoses(second) + 1);
+	}
+	else if (winner == SECOND_PLAYER)
+	{
+		playerSetNumLoses(first, playerGetNumLoses(first) + 1);
+		playerSetNumWins(second, playerGetNumWins(second) + 1);
+	}
+	else
+	{
+		playerSetNumDraws(first, playerGetNumDraws(first) + 1);
+		playerSetNumDraws(second, playerGetNumDraws(second) + 1);
+	}
+
+	return true;
+}
+
+static bool tournamentAddPlayer(Tournament tournament, int id)
 {
 	if (mapContains(tournament->players, &id))
 	{
-		return mapGet(tournament->players, &id);
+		return false;
 	}
 
 	Player player = playerCreate(id);
 
 	if (player == NULL)
 	{
-		return NULL;
+		return false;
 	}
 
 	if (mapPut(tournament->players, &id, player) != MAP_SUCCESS)
 	{
 		playerDestroy(player);
-		return NULL;
+		return false;
 	}
 
 	playerDestroy(player);
 
-	return mapGet(tournament->players, &id);
+	return true;
 }
 
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location)
@@ -55,9 +96,9 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 		return NULL;
 	}
 
-	tournament->games = mapCreate(genericGameCopy, genericIntCopy, genericGameDestroy, genericIntDestroy, genericIntCompare);
+	tournament->games = listCreate(genericGameCopy, genericGameDestroy);
 	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
-	tournament->location = strdup(location);
+	tournament->location = strdup(location); // //todo: check if ok
 
 	if (tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
 	{
@@ -76,7 +117,7 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 void tournamentDestroy(Tournament tournament)
 {
 	free(tournament->location);
-	mapDestroy(tournament->games);
+	listDestroy(tournament->games);
 	mapDestroy(tournament->players);
 	free(tournament);
 }
@@ -95,10 +136,10 @@ Tournament tournamentCopy(Tournament tournament)
 		return NULL;
 	}
 
-	mapDestroy(copy->games);
+	listDestroy(copy->games);
 	mapDestroy(copy->players);
 
-	copy->games = mapCopy(tournament->games);
+	copy->games = listCopy(tournament->games);
 	copy->players = mapCopy(tournament->players);
 
 	if (copy->games == NULL || copy->players == NULL)
@@ -129,13 +170,13 @@ int tournamentGetMaxGamesPerPlayer(Tournament tournament)
 {
 	if (tournament == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return tournament->max_games_per_player;
 }
 
-Map tournamentGetGames(Tournament tournament)
+List tournamentGetGames(Tournament tournament)
 {
 	if (tournament == NULL)
 	{
@@ -163,6 +204,8 @@ void tournamentEnd(Tournament tournament)
 	{
 		Player current = mapGet(tournament->players, i);
 
+		assert(current != NULL);
+
 		int score = playerGetNumWins(current) * 2 + playerGetNumDraws(current);
 
 		if (score >= max_score)
@@ -185,6 +228,7 @@ bool tournamentIsLocationValid(const char* location)
 
 	char current = location[0];
 
+	//todo: add defines
 	if ((current >= 'A' && current <= 'Z') == false)
 	{
 		return false;
@@ -215,81 +259,57 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 		return false;
 	}
 
-	if (tournamentGetNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament) ||
-		tournamentGetNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (playerNumGames(tournament, first_player) >= tournament->max_games_per_player)
 	{
 		return false;
 	}
 
-	Player first_ptr = tournamentAddPlayer(tournament, first_player);
-	Player second_ptr = tournamentAddPlayer(tournament, second_player);
-
-	if (first_ptr == NULL || second_ptr == NULL)
+	if (playerNumGames(tournament, second_player) >= tournament->max_games_per_player)
 	{
 		return false;
 	}
 
-	//todo: fix weirdness
-	int last_index = mapGetSize(tournament->games) - 1;
+	bool has_added = tournamentAddPlayer(tournament, first_player);
+	has_added &= tournamentAddPlayer(tournament, second_player);
 
-	Game last_game = mapGet(tournament->games, &last_index);
-
-	int game_id = 0;
-
-	if (last_game == NULL)
+	if (has_added == false)
 	{
-		game_id = 1;
-	}
-	else
-	{
-		game_id = gameGetId(last_game) + 1;
+		return false;
 	}
 
-	Game game = gameCreate(game_id, first_player, second_player, play_time, winner);
+	Game game = gameCreate(first_player, second_player, play_time, winner);
 
 	if (game == NULL)
 	{
 		return false;
 	}
 
-	if (mapPut(tournament->games, &game_id, game) != MAP_SUCCESS)
+	if (listAdd(tournament->games, game)  == false)
 	{
 		gameDestroy(game);
 		return false;
 	}
 
-	if (winner == FIRST_PLAYER)
-	{
-		playerSetNumWins(first_ptr, playerGetNumWins(first_ptr) + 1);
-		playerSetNumLoses(second_ptr, playerGetNumLoses(second_ptr) + 1);
-	}
-	else if (winner == SECOND_PLAYER)
-	{
-		playerSetNumLoses(first_ptr, playerGetNumLoses(first_ptr) + 1);
-		playerSetNumWins(second_ptr, playerGetNumWins(second_ptr) + 1);
-	}
-	else
-	{
-		playerSetNumDraws(first_ptr, playerGetNumDraws(first_ptr) + 1);
-		playerSetNumDraws(second_ptr, playerGetNumDraws(second_ptr) + 1);
-	}
+	updatePlayers(tournament, first_player, second_player, winner, play_time);
 
 	gameDestroy(game);
 	return true;
 }
 
-bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id)
-{
-	MAP_FOREACH(int*, i, tournament->games)
-	{
-		Game current = mapGet(tournament->games, i);
 
-		if (gameGetPlayerId(current, PLAYER_1) == player1_id && gameGetPlayerId(current, PLAYER_2) == player2_id)
+
+bool tournamentHasGame(Tournament tournament, int first_player, int second_player)
+{
+	for (int i = 0; i < listSize(tournament->games); i++)
+	{
+		Game current = listGet(tournament->games, i);
+
+		if (gameGetPlayerId(current, FIRST_PLAYER) == first_player && gameGetPlayerId(current, SECOND_PLAYER) == second_player)
 		{
 			return true;
 		}
 
-		if (gameGetPlayerId(current, PLAYER_1) == player2_id && gameGetPlayerId(current, PLAYER_2) == player1_id)
+		if (gameGetPlayerId(current, FIRST_PLAYER) == second_player && gameGetPlayerId(current, SECOND_PLAYER) == first_player)
 		{
 			return true;
 		}
@@ -298,17 +318,17 @@ bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id)
 	return false;
 }
 
-int tournamentGetNumGames(Tournament tournament, int player_id)
-{	
-	MAP_FOREACH(int*, i, tournament->players)
+int playerNumGames(Tournament tournament, int player)
+{		
+	if(tournament == NULL || player <= 0)
 	{
-		Player current = mapGet(tournament->games, i);
-
-		if (playerGetId(current) == player_id)
-		{
-			return playerGetNumGames(current);
-		}
+		return 0;
 	}
 
-	return 0;
+	if(mapContains(tournament->players, &player) == false)
+	{
+		return 0;
+	}
+
+	return playerGetNumGames(mapGet(tournament->players, &player));
 }
