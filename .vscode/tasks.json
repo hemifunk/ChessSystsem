@@ -18,10 +18,10 @@
 				"${fileDirname}\\main.c",
 				"${fileDirname}\\player.c",
 				"${fileDirname}\\tournament.c",
+				"${fileDirname}\\list.o",
+				"${fileDirname}\\map.o",
 				"-o",
 				"${fileDirname}\\ChessSystem.exe",
-				"-L.",
-				"-lmap",
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
