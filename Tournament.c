@@ -16,6 +16,30 @@ struct Tournament_t
 	Map players;
 };
 
+static bool addPlayer(Tournament tournament, int player_id)
+{
+	if (mapContains(tournament->players, &player_id))
+	{
+		return true;
+	}
+
+	Player player = playerCreate(player_id);
+
+	if (player == NULL)
+	{
+		return false;
+	}
+
+	if (mapPut(tournament->players, &player_id, player) != MAP_SUCCESS)
+	{
+		playerDestroy(player);
+		return false;
+	}
+
+	playerDestroy(player);
+	return true;
+}
+
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location)
 {
 	if (id <= 0 || max_games_per_player <= 0 || location == NULL || tournamentIsLocationValid(location) == false)
@@ -160,7 +184,7 @@ Map tournamentGetPlayers(Tournament tournament)
 	return tournament->players;
 }
 
-void tournamentFinish(Tournament tournament)
+void tournamentEnd(Tournament tournament)
 {
 	if (tournament == NULL)
 	{
@@ -172,8 +196,21 @@ void tournamentFinish(Tournament tournament)
 		return;
 	}
 
-	//todo: find winner
-	//todo: set winner
+	int max_score = 0;
+
+	MAP_FOREACH(int*, i, tournament->players)
+	{
+		Player current = mapGet(tournament->players, i);
+
+		int score = playerGetNumWins(current) * 2 + playerGetNumDraws(current);
+
+		if(score >= max_score)
+		{
+			max_score = score;
+			
+			tournament->winner_id = playerGetId(current);
+		}
+	}
 
 	tournament->has_finished = true;
 }
@@ -216,19 +253,61 @@ bool tournamentAddGame(Tournament tournament, int player1_id, int player2_id, Wi
 		return false;
 	}
 
-	Game game = gameCreate(game_id, player1_id, player2_id, time, winner);
+	bool success = addPlayer(tournament, player1_id);
+	success &= addPlayer(tournament, player2_id);
 
-	if(game == NULL)
+	if(success == false)
 	{
 		return false;
 	}
 
-	int game_id = mapGetSize(tournament->games) + 1;
+	int last_index = mapGetSize(tournament->games) - 1;
+
+	Game last_game = mapGet(tournament->games, &last_index);
+
+	int game_id = 0;
+
+	if(last_game == NULL)
+	{
+		game_id = 1;
+	}
+	else
+	{
+		game_id = gameGetId(last_game) + 1;
+	}
+
+	Game game = gameCreate(game_id, player1_id, player2_id, time, winner);
+
+	if (game == NULL)
+	{
+		return false;
+	}
 
 	if (mapPut(tournament->games, &game_id, game) != MAP_SUCCESS)
 	{
 		gameDestroy(game);
 		return false;
+	}
+
+	Player first_player = mapGet(tournament->players, &player1_id);
+	Player second_player = mapGet(tournament->players, &player2_id);
+
+	assert(first_player != NULL && second_player != NULL);
+
+	if(winner == FIRST_PLAYER)
+	{
+		playerSetNumWins(first_player, playerGetNumWins(first_player) + 1);
+		playerSetNumLoses(second_player, playerGetNumLoses(second_player) + 1);
+	}
+	else if (winner== SECOND_PLAYER)
+	{
+		playerSetNumLoses(first_player, playerGetNumLoses(first_player) + 1);
+		playerSetNumWins(second_player, playerGetNumWins(second_player) + 1);
+	}
+	else
+	{
+		playerSetNumDraws(first_player, playerGetNumDraws(first_player) + 1);
+		playerSetNumDraws(second_player, playerGetNumDraws(second_player) + 1);
 	}
 
 	gameDestroy(game);

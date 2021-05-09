@@ -4,7 +4,7 @@
 typedef struct Player_t* Player;
 
 /**Creates a player*/
-Player playerCreate();
+Player playerCreate(int id);
 
 /**Destorys a player*/
 void playerDestroy(Player player);

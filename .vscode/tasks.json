@@ -11,8 +11,7 @@
 				"-Wall",
 				"-Wextra",
 				"-Werror",
-				"-pedantic-errors",
-				"${fileDirname}\\libmap.a",
+				"-pedantic-errors",			
 				"${fileDirname}\\chessSystem.c",
 				"${fileDirname}\\game.c",
 				"${fileDirname}\\generics.c",
@@ -20,7 +19,9 @@
 				"${fileDirname}\\player.c",
 				"${fileDirname}\\tournament.c",
 				"-o",
-				"${fileDirname}\\ChessSystem.exe"
+				"${fileDirname}\\ChessSystem.exe",
+				"-L.",
+				"-lmap",
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"
