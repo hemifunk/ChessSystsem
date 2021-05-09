@@ -12,7 +12,7 @@
 				"-Wextra",
 				"-Werror",
 				"-pedantic-errors",			
-				"${fileDirname}\\chessSystem.c",
+				"${fileDirname}\\chess.c",
 				"${fileDirname}\\game.c",
 				"${fileDirname}\\generics.c",
 				"${fileDirname}\\main.c",
@@ -21,7 +21,7 @@
 				"${fileDirname}\\list.o",
 				"${fileDirname}\\map.o",
 				"-o",
-				"${fileDirname}\\ChessSystem.exe",
+				"${fileDirname}\\Chess.exe",
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

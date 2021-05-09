@@ -8,7 +8,7 @@
             "name": "gcc.exe - Build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}\\ChessSystem.exe",
+            "program": "${fileDirname}\\Chess.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

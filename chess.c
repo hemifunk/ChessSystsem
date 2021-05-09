@@ -1,4 +1,4 @@
-#include "chessSystem.h"
+#include "chess.h"
 #include "generics.h"
 #include "map.h"
 #include "tournament.h"
@@ -11,7 +11,7 @@
 struct Chess_System_t
 {
 	Map tournaments;
-	Map all_players;
+	Map all_players; //todo: convert to list?
 };
 
 ChessSystem chessCreate()
@@ -69,6 +69,11 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 		return CHESS_INVALID_LOCATION;
 	}
 
+	if (tournamentIsLocationValid(tournament_location) == false)
+	{
+		return CHESS_INVALID_LOCATION;
+	}
+
 	if (mapContains(chess->tournaments, &tournament_id))
 	{
 		return CHESS_TOURNAMENT_ALREADY_EXISTS;
@@ -108,10 +113,7 @@ ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 		return CHESS_TOURNAMENT_NOT_EXIST;
 	}
 
-	if (mapRemove(chess->tournaments, &tournament_id) != MAP_SUCCESS)
-	{
-		return CHESS_OUT_OF_MEMORY;
-	}
+	mapRemove(chess->tournaments, &tournament_id);
 
 	return CHESS_SUCCESS;
 }
@@ -140,12 +142,9 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 
 	Tournament tournament = (Tournament)mapGet(chess->tournaments, &tournament_id);
 
-	if (tournament == NULL)
-	{
-		return CHESS_OUT_OF_MEMORY;
-	}
+	assert(tournament != NULL);
 
-	if (tournamentGetHasFinished(tournament))
+	if (tournamentHasEnded(tournament))
 	{
 		return CHESS_TOURNAMENT_ENDED;
 	}

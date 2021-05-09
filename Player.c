@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "chessSystem.h"
+#include "chess.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -69,7 +69,7 @@ int playerGetId(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->id;
@@ -79,7 +79,7 @@ int playerGetNumWins(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->num_wins;
@@ -97,7 +97,7 @@ int playerGetNumLoses(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->num_loses;
@@ -115,7 +115,7 @@ int playerGetNumDraws(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->num_draws;
@@ -133,7 +133,7 @@ int playerGetTotalPlayTime(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->total_play_time;
@@ -151,7 +151,7 @@ int playerGetNumGames(Player player)
 {
 	if (player == NULL)
 	{
-		return -1;
+		return 0;
 	}
 
 	return player->num_games;

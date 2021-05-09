@@ -1,7 +1,7 @@
 #ifndef _GAME_H
 #define _GAME_H
 
-#include "chessSystem.h"
+#include "chess.h"
 
 typedef enum
 {

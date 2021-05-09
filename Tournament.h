@@ -19,7 +19,7 @@ bool tournamentIsLocationValid(const char* location);
 
 Map tournamentGetGames(Tournament tournament);
 
-bool tournamentGetHasFinished(Tournament tournament);
+bool tournamentHasEnded(Tournament tournament);
 
 bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id);
 

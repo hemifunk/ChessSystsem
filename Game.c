@@ -4,10 +4,10 @@
 
 struct Game_t
 {
-	int id; //todo: remove, not neccecery
-	int player1_id;
-	int player2_id;
-	int time;
+	int id; //todo: remove, not neccecery?
+	int first_player;
+	int second_player;
+	int play_time;
 	Winner winner;
 };
 
@@ -26,9 +26,9 @@ Game gameCreate(int id, int player1_id, int player2_id, int time, Winner winner)
 	}
 
 	game->id = id;
-	game->player1_id = player1_id;
-	game->player2_id = player2_id;
-	game->time = time;
+	game->first_player = player1_id;
+	game->second_player = player2_id;
+	game->play_time = time;
 	game->winner = winner;
 
 	return game;
@@ -46,7 +46,7 @@ Game gameCopy(Game game)
 		return NULL;
 	}
 
-	Game copy = gameCreate(game->id, game->player1_id, game->player2_id, game->time, game->winner);
+	Game copy = gameCreate(game->id, game->first_player, game->second_player, game->play_time, game->winner);
 
 	return copy;
 }
@@ -60,11 +60,11 @@ int gameGetPlayerId(Game game, Player_Index player)
 
 	if (player == PLAYER_1)
 	{
-		return game->player1_id;
+		return game->first_player;
 	}
 	else
 	{
-		return game->player2_id;
+		return game->second_player;
 	}
 }
 
@@ -97,5 +97,5 @@ int gameGetTime(Game game)
 		return -1;
 	}
 
-	return game->time;
+	return game->play_time;
 }
