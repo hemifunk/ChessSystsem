@@ -251,7 +251,6 @@ bool tournamentIsLocationValid(const char* location)
 	return true;
 }
 
-//todo: review
 bool tournamentAddGame(Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (tournamentHasGame(tournament, first_player, second_player))
