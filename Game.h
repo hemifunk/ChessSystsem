@@ -11,6 +11,8 @@ typedef enum
 
 typedef struct Game_t* Game;
 
+ChessResult gameValidate(int first_player, int second_player, int time);
+
 /** Allocates a new game */
 Game gameCreate(int first_player, int second_player, int time, Winner winner);
 

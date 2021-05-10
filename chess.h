@@ -3,23 +3,24 @@
 
 #include <stdio.h>
 
-typedef enum {
-    CHESS_OUT_OF_MEMORY,
-    CHESS_NULL_ARGUMENT,
-    CHESS_INVALID_ID,
-    CHESS_INVALID_LOCATION,
-    CHESS_INVALID_MAX_GAMES,
-    CHESS_TOURNAMENT_ALREADY_EXISTS,
-    CHESS_TOURNAMENT_NOT_EXIST,
-    CHESS_GAME_ALREADY_EXISTS,
-    CHESS_INVALID_PLAY_TIME,
-    CHESS_EXCEEDED_GAMES,
-    CHESS_PLAYER_NOT_EXIST,
-    CHESS_TOURNAMENT_ENDED,
-    CHESS_NO_TOURNAMENTS_ENDED,
-    CHESS_SAVE_FAILURE,
-    CHESS_SUCCESS
-} ChessResult ;
+typedef enum
+{
+	CHESS_OUT_OF_MEMORY,
+	CHESS_NULL_ARGUMENT,
+	CHESS_INVALID_ID,
+	CHESS_INVALID_LOCATION,
+	CHESS_INVALID_MAX_GAMES,
+	CHESS_TOURNAMENT_ALREADY_EXISTS,
+	CHESS_TOURNAMENT_NOT_EXIST,
+	CHESS_GAME_ALREADY_EXISTS,
+	CHESS_INVALID_PLAY_TIME,
+	CHESS_EXCEEDED_GAMES,
+	CHESS_PLAYER_NOT_EXIST,
+	CHESS_TOURNAMENT_ENDED,
+	CHESS_NO_TOURNAMENTS_ENDED,
+	CHESS_SAVE_FAILURE,
+	CHESS_SUCCESS
+} ChessResult;
 
 /*
     Type for specifying who is the winner in a certain match
@@ -32,7 +33,7 @@ typedef enum
 } Winner;
 
 /** Type for representing a chess system that organizes chess tournaments */
-typedef struct Chess_System_t *ChessSystem;
+typedef struct Chess_System_t* ChessSystem;
 
 /**
  * chessCreate: create an empty chess system.
@@ -66,8 +67,8 @@ void chessDestroy(ChessSystem chess);
  *     CHESS_TOURNAMENT_ALREADY_EXIST - if a tournament with the given id already exist.
  *     CHESS_SUCCESS - if tournament was added successfully.
  */
-ChessResult chessAddTournament (ChessSystem chess, int tournament_id,
-                                int max_games_per_player, const char* tournament_location);
+ChessResult chessAddTournament(ChessSystem chess, int tournament_id,
+							   int max_games_per_player, const char* tournament_location);
 
 /**
  * chessAddGame: add a new match to a chess tournament.
@@ -89,7 +90,7 @@ ChessResult chessAddTournament (ChessSystem chess, int tournament_id,
  *     CHESS_SUCCESS - if game was added successfully.
  */
 ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
-                         int second_player, Winner winner, int play_time);
+						 int second_player, Winner winner, int play_time);
 
 /**
  * chessRemoveTournament: removes the tournament and all the games played in it from the chess system.
@@ -103,7 +104,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
  *     CHESS_TOURNAMENT_NOT_EXIST - if the tournament does not exist in the system.
  *     CHESS_SUCCESS - if tournament was removed successfully.
  */
-ChessResult chessRemoveTournament (ChessSystem chess, int tournament_id);
+ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id);
 
 /**
  * chessRemovePlayer: removes the player from the chess system.
@@ -135,7 +136,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id);
  *     CHESS_TOURNAMENT_NOT_EXIST - if the tournament does not exist in the system.
  *     CHESS_SUCCESS - if tournament was ended successfully.
  */
-ChessResult chessEndTournament (ChessSystem chess, int tournament_id);
+ChessResult chessEndTournament(ChessSystem chess, int tournament_id);
 
 /**
  * chessCalculateAveragePlayTime: the function returns the average playing time for a particular player.
@@ -149,7 +150,7 @@ ChessResult chessEndTournament (ChessSystem chess, int tournament_id);
  *     CHESS_PLAYER_NOT_EXIST - if the player does not exist in the system.
  *     CHESS_SUCCESS - if average playing time was returned successfully.
  */
-double chessCalculateAveragePlayTime (ChessSystem chess, int player_id, ChessResult* chess_result);
+double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResult* chess_result);
 
 /**
  * chessSavePlayersLevels: prints the rating of all players in the system as
@@ -162,7 +163,7 @@ double chessCalculateAveragePlayTime (ChessSystem chess, int player_id, ChessRes
  *     CHESS_SAVE_FAILURE - if an error occurred while saving.
  *     CHESS_SUCCESS - if the ratings was printed successfully.
  */
-ChessResult chessSavePlayersLevels (ChessSystem chess, FILE* file);
+ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file);
 
 /**
  * chessSaveTournamentStatistics: prints to the file the statistics for each tournament that ended as
@@ -176,6 +177,6 @@ ChessResult chessSavePlayersLevels (ChessSystem chess, FILE* file);
  *     CHESS_SAVE_FAILURE - if an error occurred while saving.
  *     CHESS_SUCCESS - if the ratings was printed successfully.
  */
-ChessResult chessSaveTournamentStatistics (ChessSystem chess, char* path_file);
+ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file);
 
 #endif //_CHESSSYSTEM_H

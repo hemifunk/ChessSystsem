@@ -54,24 +54,11 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	if (tournament_id <= 0)
-	{
-		return CHESS_INVALID_ID;
-	}
+	ChessResult result = tournamentValidate(tournament_id, max_games_per_player, tournament_location);
 
-	if (max_games_per_player <= 0)
+	if (result != CHESS_SUCCESS)
 	{
-		return CHESS_INVALID_MAX_GAMES;
-	}
-
-	if (tournament_location == NULL)
-	{
-		return CHESS_INVALID_LOCATION;
-	}
-
-	if (tournamentIsLocationValid(tournament_location) == false)
-	{
-		return CHESS_INVALID_LOCATION;
+		return result;
 	}
 
 	if (mapContains(chess->tournaments, &tournament_id))
@@ -125,14 +112,16 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	if (tournament_id <= 0 || first_player <= 0 || second_player <= 0|| first_player==second_player)
+	if (tournament_id <= 0)
 	{
 		return CHESS_INVALID_ID;
 	}
 
-	if (play_time <= 0)
+	ChessResult result = gameValidate(first_player, second_player, play_time);
+
+	if (result != CHESS_SUCCESS)
 	{
-		return CHESS_INVALID_PLAY_TIME;
+		return result;
 	}
 
 	if (mapContains(chess->tournaments, &tournament_id) == false)
@@ -154,12 +143,8 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_GAME_ALREADY_EXISTS;
 	}
 
-	if (playerNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament))
-	{
-		return CHESS_EXCEEDED_GAMES;
-	}
-
-	if (playerNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
+	if (playerNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament) ||
+		playerNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
 		return CHESS_EXCEEDED_GAMES;
 	}

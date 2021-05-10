@@ -1,4 +1,5 @@
 #include "tournament.h"
+#include "chess.h"
 #include "game.h"
 #include "generics.h"
 #include "list.h"
@@ -82,9 +83,29 @@ static bool tournamentAddPlayer(Tournament tournament, int id)
 	return true;
 }
 
+ChessResult tournamentValidate(int id, int max_games_per_player, const char* location)
+{
+	if (id <= 0)
+	{
+		return CHESS_INVALID_ID;
+	}
+
+	if (max_games_per_player <= 0)
+	{
+		return CHESS_INVALID_MAX_GAMES;
+	}
+
+	if (tournamentIsLocationValid(location) == false)
+	{
+		return CHESS_INVALID_LOCATION;
+	}
+
+	return CHESS_SUCCESS;
+}
+
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location)
 {
-	if (id <= 0 || max_games_per_player <= 0 || location == NULL || tournamentIsLocationValid(location) == false)
+	if (tournamentValidate(id, max_games_per_player, location) != CHESS_SUCCESS)
 	{
 		return NULL;
 	}
@@ -251,8 +272,14 @@ bool tournamentIsLocationValid(const char* location)
 	return true;
 }
 
+//todo: add param validation
 bool tournamentAddGame(Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
 {
+	if (tournament == NULL)
+	{
+		return false;
+	}
+
 	if (tournamentHasGame(tournament, first_player, second_player))
 	{
 		return false;
@@ -268,10 +295,7 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 		return false;
 	}
 
-	bool has_added = tournamentAddPlayer(tournament, first_player);
-	has_added &= tournamentAddPlayer(tournament, second_player);
-
-	if (has_added == false)
+	if (tournamentAddPlayer(tournament, first_player) == false || tournamentAddPlayer(tournament, second_player) == false)
 	{
 		return false;
 	}
@@ -283,7 +307,7 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 		return false;
 	}
 
-	if (listAdd(tournament->games, game)  == false)
+	if (listAdd(tournament->games, game) == false)
 	{
 		gameDestroy(game);
 		return false;
@@ -294,8 +318,6 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 	gameDestroy(game);
 	return true;
 }
-
-
 
 bool tournamentHasGame(Tournament tournament, int first_player, int second_player)
 {
@@ -318,13 +340,13 @@ bool tournamentHasGame(Tournament tournament, int first_player, int second_playe
 }
 
 int playerNumGames(Tournament tournament, int player)
-{		
-	if(tournament == NULL || player <= 0)
+{
+	if (tournament == NULL || player <= 0)
 	{
 		return 0;
 	}
 
-	if(mapContains(tournament->players, &player) == false)
+	if (mapContains(tournament->players, &player) == false)
 	{
 		return 0;
 	}

@@ -36,35 +36,35 @@
 */
 
 /** Type for defining the map */
-typedef struct Map_t *Map;
+typedef struct Map_t* Map;
 
 /** Type used for returning error codes from map functions */
-typedef enum MapResult_t {
-    MAP_SUCCESS,
-    MAP_OUT_OF_MEMORY,
-    MAP_NULL_ARGUMENT,
-    MAP_ITEM_ALREADY_EXISTS,
-    MAP_ITEM_DOES_NOT_EXIST
+typedef enum MapResult_t
+{
+	MAP_SUCCESS,
+	MAP_OUT_OF_MEMORY,
+	MAP_NULL_ARGUMENT,
+	MAP_ITEM_ALREADY_EXISTS,
+	MAP_ITEM_DOES_NOT_EXIST
 } MapResult;
 
 /** Data element data type for map container */
-typedef void *MapDataElement;
+typedef void* MapDataElement;
 
 /** Key element data type for map container */
-typedef void *MapKeyElement;
+typedef void* MapKeyElement;
 
 /** Type of function for copying a data element of the map */
-typedef MapDataElement(*copyMapDataElements)(MapDataElement);
+typedef MapDataElement (*copyMapDataElements)(MapDataElement);
 
 /** Type of function for copying a key element of the map */
-typedef MapKeyElement(*copyMapKeyElements)(MapKeyElement);
+typedef MapKeyElement (*copyMapKeyElements)(MapKeyElement);
 
 /** Type of function for deallocating a data element of the map */
-typedef void(*freeMapDataElements)(MapDataElement);
+typedef void (*freeMapDataElements)(MapDataElement);
 
 /** Type of function for deallocating a key element of the map */
-typedef void(*freeMapKeyElements)(MapKeyElement);
-
+typedef void (*freeMapKeyElements)(MapKeyElement);
 
 /**
 * Type of function used by the map to identify equal key elements.
@@ -73,7 +73,7 @@ typedef void(*freeMapKeyElements)(MapKeyElement);
 * 		0 if they're equal;
 *		A negative integer if the second element is greater.
 */
-typedef int(*compareMapKeyElements)(MapKeyElement, MapKeyElement);
+typedef int (*compareMapKeyElements)(MapKeyElement, MapKeyElement);
 
 /**
 * mapCreate: Allocates a new empty map.
@@ -93,10 +93,10 @@ typedef int(*compareMapKeyElements)(MapKeyElement, MapKeyElement);
 * 	A new Map in case of success.
 */
 Map mapCreate(copyMapDataElements copyDataElement,
-              copyMapKeyElements copyKeyElement,
-              freeMapDataElements freeDataElement,
-              freeMapKeyElements freeKeyElement,
-              compareMapKeyElements compareKeyElements);
+			  copyMapKeyElements copyKeyElement,
+			  freeMapDataElements freeDataElement,
+			  freeMapKeyElements freeKeyElement,
+			  compareMapKeyElements compareKeyElements);
 
 /**
 * mapDestroy: Deallocates an existing map. Clears all elements by using the
@@ -218,7 +218,6 @@ MapKeyElement mapGetFirst(Map map);
 */
 MapKeyElement mapGetNext(Map map);
 
-
 /**
 * mapClear: Removes all key and data elements from target map.
 * The elements are deallocated using the stored free functions.
@@ -234,9 +233,9 @@ MapResult mapClear(Map map);
 * Macro for iterating over a map.
 * Declares a new iterator for the loop.
 */
-#define MAP_FOREACH(type, iterator, map) \
-    for(type iterator = (type) mapGetFirst(map) ; \
-        iterator ;\
-        iterator = mapGetNext(map))
+#define MAP_FOREACH(type, iterator, map)         \
+	for (type iterator = (type)mapGetFirst(map); \
+		 iterator;                               \
+		 iterator = mapGetNext(map))
 
 #endif /* MAP_H_ */

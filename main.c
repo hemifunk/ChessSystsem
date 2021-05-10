@@ -1,6 +1,8 @@
 #include "chess.h"
 #include <assert.h>
 
+//todo: function max len - 50 lines
+//todo: line max len: 120 chars
 int main()
 {
 	ChessSystem chess = chessCreate();

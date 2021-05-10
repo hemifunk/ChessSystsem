@@ -1,14 +1,17 @@
 #ifndef _TOURNAMENT_H
 #define _TOURNAMENT_H
 
+#include "chess.h"
 #include "game.h"
 #include "list.h"
+#include "map.h"
 #include "player.h"
 #include <stdbool.h>
 #include <string.h>
-#include "map.h"
 
 typedef struct Tournament_t* Tournament;
+
+ChessResult tournamentValidate(int id, int max_games_per_player, const char* location);
 
 Tournament tournamentCreate(int id, int max_games_per_player, const char* location);
 

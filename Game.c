@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "chess.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -10,9 +11,24 @@ struct Game_t
 	Winner winner;
 };
 
+ChessResult gameValidate(int first_player, int second_player, int time)
+{
+	if (first_player <= 0 || second_player <= 0 || first_player == second_player)
+	{
+		return CHESS_INVALID_ID;
+	}
+
+	if (time <= 0)
+	{
+		return CHESS_INVALID_PLAY_TIME;
+	}
+
+	return CHESS_SUCCESS;
+}
+
 Game gameCreate(int first_player, int second_player, int time, Winner winner)
 {
-	if (first_player <= 0 || second_player <= 0 || time <= 0 || first_player == second_player)
+	if (gameValidate(first_player, second_player, time) != CHESS_SUCCESS)
 	{
 		return NULL;
 	}
