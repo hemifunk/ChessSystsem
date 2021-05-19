@@ -21,46 +21,7 @@ struct chess_system_t
 	int number_games;
 };
 
-static void clearPlayersWithZeroGames(ChessSystem chess)
-{
-	Map all_players_at_chess = chess->all_players;
-
-	assert(all_players_at_chess != NULL);
-
-	MAP_FOREACH(int*, i, all_players_at_chess)
-	{
-		Player current_player = mapGet(all_players_at_chess, i);
-
-		assert(current_player != NULL);
-
-		if (playerGetNumGames(current_player) == 0)
-		{
-			MAP_FOREACH(int*, j, chess->tournaments)
-			{
-				Tournament current_tournament = mapGet(chess->tournaments, j);
-
-				assert(current_tournament != NULL);
-
-				Map players_at_current_tournament = tournamentGetPlayers(current_tournament);
-
-				assert(players_at_current_tournament != NULL);
-
-				if (mapContains(players_at_current_tournament, i))
-				{
-					mapRemove(players_at_current_tournament, i);
-				}
-
-				genericIntDestroy(j);
-			}
-
-			mapRemove(all_players_at_chess, i);
-		}
-
-		genericIntDestroy(i);
-	}
-}
-
-static bool isContained(int* arr, int size, int number)
+static bool hasNum(int* arr, int size, int number)
 {
 	for (int i = 0; i < size; i++)
 	{
@@ -72,6 +33,7 @@ static bool isContained(int* arr, int size, int number)
 
 	return false;
 }
+
 static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_minimal)
 {
 	double min = INT_MAX;
@@ -81,7 +43,7 @@ static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_m
 	{
 		Player player = mapGet(players, i);
 
-		if (min > playerGetLevel(player) && !isContained(unallowed_ids, mapGetSize(players), playerGetId(player)))
+		if (min > playerGetLevel(player) && hasNum(unallowed_ids, mapGetSize(players), playerGetId(player) == false))
 		{
 			min = playerGetLevel(player);
 			id_min = playerGetId(player);
@@ -96,27 +58,32 @@ static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_m
 	return min;
 }
 
-static void updateChessPlayers(Map players, Tournament tournament)
+static void removeTournamentStats(Map all_players, Tournament tournament)
 {
-	assert(tournament != NULL);
-	assert(players != NULL);
-
-	MAP_FOREACH(int*, i, players)
+	if(all_players == NULL || tournament == NULL)
 	{
-		if (mapContains(tournamentGetPlayers(tournament), i))
-		{
-			Player player_to_remove_from = mapGet(players, i);
-			Player player_to_remove_info = mapGet(tournamentGetPlayers(tournament), i);
+		return;
+	}
 
-			playerSetNumGames(player_to_remove_from, playerGetNumGames(player_to_remove_from) - playerGetNumGames(player_to_remove_info));
+	Map tournament_players = tournamentGetPlayers(tournament);
 
-			playerSetNumWins(player_to_remove_from, playerGetNumWins(player_to_remove_from) - playerGetNumWins(player_to_remove_info));
+	MAP_FOREACH(int*, id, tournament_players)
+	{
+		Player current = mapGet(tournament_players, id);
 
-			playerSetNumLoses(player_to_remove_from, playerGetNumLoses(player_to_remove_from) - playerGetNumLoses(player_to_remove_info));
+		Player current_global = mapGet(all_players, id);
 
-			playerSetNumDraws(player_to_remove_from, playerGetNumDraws(player_to_remove_from) - playerGetNumDraws(player_to_remove_info));
-		}
-		genericIntDestroy(i);
+		assert(current != NULL && current_global != NULL);
+		
+		playerSetNumGames(current_global, playerGetNumGames(current_global) - playerGetNumGames(current));
+
+		playerSetNumWins(current_global, playerGetNumWins(current_global) - playerGetNumWins(current));
+
+		playerSetNumLoses(current_global, playerGetNumLoses(current_global) - playerGetNumLoses(current));
+
+		playerSetNumDraws(current_global, playerGetNumDraws(current_global) - playerGetNumDraws(current));
+		
+		genericIntDestroy(id);
 	}
 }
 
@@ -209,9 +176,7 @@ ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 
 	Tournament tournament = mapGet(chess->tournaments, &tournament_id);
 
-	updateChessPlayers(chess->all_players, tournament);
-
-	clearPlayersWithZeroGames(chess);
+	removeTournamentStats(chess->all_players, tournament);
 
 	mapRemove(chess->tournaments, &tournament_id);
 
@@ -242,7 +207,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_TOURNAMENT_NOT_EXIST;
 	}
 
-	Tournament tournament = (Tournament)mapGet(chess->tournaments, &tournament_id);
+	Tournament tournament = mapGet(chess->tournaments, &tournament_id);
 
 	assert(tournament != NULL);
 
@@ -251,12 +216,11 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_TOURNAMENT_ENDED;
 	}
 
-	if (tournamentHasGame(tournament, first_player, second_player) &&
-		mapContains(tournamentGetPlayers(tournament), &first_player) &&
-		mapContains(tournamentGetPlayers(tournament), &second_player))
+	if (tournamentHasGame(tournament, first_player, second_player, false))
 	{
 		return CHESS_GAME_ALREADY_EXISTS;
 	}
+
 	if (playerNumGames(tournament, first_player) >= tournamentGetMaxGamesPerPlayer(tournament) ||
 		playerNumGames(tournament, second_player) >= tournamentGetMaxGamesPerPlayer(tournament))
 	{
@@ -269,6 +233,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 	}
 
 	chess->number_games = chess->number_games + 1;
+
 	return CHESS_SUCCESS;
 }
 
@@ -296,9 +261,9 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 		assert(current != NULL);
 
-		if (!tournamentHasEnded(current))
+		if (tournamentHasEnded(current) == false)
 		{
-			List games_of_current = tournamentGetGames(current);
+			List current_games = tournamentGetGames(current);
 			Map Players = tournamentGetPlayers(current);
 
 			if (Players == NULL)
@@ -307,11 +272,11 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 				return CHESS_OUT_OF_MEMORY;
 			}
 
-			if (games_of_current != NULL)
+			if (current_games != NULL)
 			{
-				for (int j = 0; j < listSize(games_of_current); j++)
+				for (int j = 0; j < listSize(current_games); j++)
 				{
-					PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(games_of_current, j), player_id);
+					PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(current_games, j), player_id);
 
 					if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
 					{
@@ -326,8 +291,6 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 		genericIntDestroy(i);
 	}
-
-	clearPlayersWithZeroGames(chess);
 
 	mapRemove(chess->all_players, &player_id);
 

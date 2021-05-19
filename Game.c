@@ -1,9 +1,10 @@
 #include "game.h"
-#include "map.h"
-#include "list.h"
-#include "player.h"
 #include "chessSystem.h"
+#include "list.h"
+#include "map.h"
+#include "player.h"
 #include <assert.h>
+#include <stdbool.h>
 #include <stdlib.h>
 
 struct Game_t
@@ -12,6 +13,7 @@ struct Game_t
 	int second_player;
 	int play_time;
 	Winner winner;
+	bool player_removed;
 };
 
 ChessResult gameValidate(int first_player, int second_player, int time)
@@ -47,6 +49,7 @@ Game gameCreate(int first_player, int second_player, int time, Winner winner)
 	game->second_player = second_player;
 	game->play_time = time;
 	game->winner = winner;
+	game->player_removed = false;
 
 	return game;
 }
@@ -64,6 +67,7 @@ Game gameCopy(Game game)
 	}
 
 	Game copy = gameCreate(game->first_player, game->second_player, game->play_time, game->winner);
+	copy->player_removed = game->player_removed;
 
 	return copy;
 }
@@ -112,6 +116,33 @@ int gameGetTime(Game game)
 	}
 
 	return game->play_time;
+}
+
+bool gameHasPlayerRemoved(Game game)
+{
+	assert(game != NULL);
+
+	return game->player_removed;
+}
+
+//todo: use this func to remove player from a game
+void gameRemovePlayer(Game game, int player)
+{
+	if (game == NULL || player <= 0)
+	{
+		return;
+	}
+
+	if (player == game->first_player)
+	{
+		game->winner = SECOND_PLAYER;
+		game->player_removed = true;
+	}
+	else if (player == game->second_player)
+	{
+		game->winner = FIRST_PLAYER;
+		game->player_removed = true;
+	}
 }
 
 PlayerResult gameGetNewWinner(Map chess_players, Map tournament_players, Game game, int player_id)

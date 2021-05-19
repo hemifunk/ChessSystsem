@@ -27,7 +27,7 @@ Map tournamentGetPlayers(Tournament tournament);
 
 bool tournamentHasEnded(Tournament tournament);
 
-bool tournamentHasGame(Tournament tournament, int player1_id, int player2_id);
+bool tournamentHasGame(Tournament tournament, int first_player, int second_player, bool player_removed);
 
 int playerNumGames(Tournament tournament, int player_id);
 

@@ -43,4 +43,8 @@ int gameGetTime(Game game);
 
 PlayerResult gameGetNewWinner(Map chess_players, Map tournament_players, Game game, int player_id);
 
+void gameRemovePlayer(Game game, int player);
+
+bool gameHasPlayerRemoved(Game game);
+
 #endif

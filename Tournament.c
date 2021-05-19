@@ -59,7 +59,7 @@ static bool updatePlayers(Map players, int first_player, int second_player, Winn
 	return true;
 }
 
-static bool tournamentAddPlayer(Map players, int id)
+static bool mapAddPlayer(Map players, int id)
 {
 	if (mapContains(players, &id))
 	{
@@ -283,15 +283,19 @@ bool tournamentIsLocationValid(const char* location)
 	return true;
 }
 
-//todo: add param validation
-bool tournamentAddGame(Map all_players_at_chess, Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
+bool tournamentAddGame(Map chess_players, Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
 {
-	if (tournament == NULL)
+	if (chess_players == NULL || tournament == NULL)
 	{
 		return false;
 	}
 
-	if (tournamentHasGame(tournament, first_player, second_player))
+	if (gameValidate(first_player, second_player, play_time) != CHESS_SUCCESS)
+	{
+		return false;
+	}
+
+	if (tournamentHasGame(tournament, first_player, second_player, false))
 	{
 		return false;
 	}
@@ -302,12 +306,6 @@ bool tournamentAddGame(Map all_players_at_chess, Tournament tournament, int firs
 	}
 
 	if (playerNumGames(tournament, second_player) >= tournament->max_games_per_player)
-	{
-		return false;
-	}
-
-	//what happens if one succeeds and the other doesn't? need to earse info?
-	if (tournamentAddPlayer(tournament->players, first_player) == false || tournamentAddPlayer(tournament->players, second_player) == false || tournamentAddPlayer(all_players_at_chess, first_player) == false || tournamentAddPlayer(all_players_at_chess, second_player) == false)
 	{
 		return false;
 	}
@@ -325,29 +323,39 @@ bool tournamentAddGame(Map all_players_at_chess, Tournament tournament, int firs
 		return false;
 	}
 
+	if (mapAddPlayer(tournament->players, first_player) == false ||
+		mapAddPlayer(tournament->players, second_player) == false ||
+		mapAddPlayer(chess_players, first_player) == false ||
+		mapAddPlayer(chess_players, second_player) == false)
+	{
+		gameDestroy(game);
+		return false;
+	}	
+
 	updatePlayers(tournament->players, first_player, second_player, winner, play_time);
-	updatePlayers(all_players_at_chess, first_player, second_player, winner, play_time);
+	updatePlayers(chess_players, first_player, second_player, winner, play_time);
 
 	gameDestroy(game);
 	return true;
 }
 
-bool tournamentHasGame(Tournament tournament, int first_player, int second_player)
+bool tournamentHasGame(Tournament tournament, int first_player, int second_player, bool has_player_removed)
 {
-
 	for (int i = 0; i < listSize(tournament->games); i++)
 	{
 		Game current = listGet(tournament->games, i);
-		if (gameGetPlayerId(current, FIRST_PLAYER) == first_player && gameGetPlayerId(current, SECOND_PLAYER) == second_player)
+
+		if (gameGetPlayerId(current, FIRST_PLAYER) == first_player && gameGetPlayerId(current, SECOND_PLAYER) == second_player && gameHasPlayerRemoved(current) == has_player_removed)
 		{
 			return true;
 		}
 
-		if (gameGetPlayerId(current, FIRST_PLAYER) == second_player && gameGetPlayerId(current, SECOND_PLAYER) == first_player)
+		if (gameGetPlayerId(current, FIRST_PLAYER) == second_player && gameGetPlayerId(current, SECOND_PLAYER) == first_player && gameHasPlayerRemoved(current) == has_player_removed)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
 
