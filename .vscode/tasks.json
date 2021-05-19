@@ -12,7 +12,7 @@
 				"-Wextra",
 				"-Werror",
 				"-pedantic-errors",			
-				"${fileDirname}\\chess.c",
+				"${fileDirname}\\chessSystem.c",
 				"${fileDirname}\\game.c",
 				"${fileDirname}\\generics.c",
 				"${fileDirname}\\main.c",
