@@ -1,8 +1,9 @@
-#include "tournament.h"
-#include "chess.h"
-#include "game.h"
+#include "Tournament.h"
+#include "Game.h"
+#include "Player.h"
 #include "generics.h"
 #include "list.h"
+#include "map.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,15 +19,15 @@ struct Tournament_t
 	Map players;
 };
 
-static bool updatePlayers(Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
+static bool updatePlayers(Map players, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (first_player <= 0 || second_player <= 0 || play_time <= 0)
 	{
 		return false;
 	}
 
-	Player first = mapGet(tournament->players, &first_player);
-	Player second = mapGet(tournament->players, &second_player);
+	Player first = mapGet(players, &first_player);
+	Player second = mapGet(players, &second_player);
 
 	if (first == NULL || second == NULL)
 	{
@@ -58,11 +59,11 @@ static bool updatePlayers(Tournament tournament, int first_player, int second_pl
 	return true;
 }
 
-static bool tournamentAddPlayer(Tournament tournament, int id)
+static bool tournamentAddPlayer(Map players, int id)
 {
-	if (mapContains(tournament->players, &id))
+	if (mapContains(players, &id))
 	{
-		return false;
+		return true;
 	}
 
 	Player player = playerCreate(id);
@@ -72,7 +73,7 @@ static bool tournamentAddPlayer(Tournament tournament, int id)
 		return false;
 	}
 
-	if (mapPut(tournament->players, &id, player) != MAP_SUCCESS)
+	if (mapPut(players, &id, player) != MAP_SUCCESS)
 	{
 		playerDestroy(player);
 		return false;
@@ -116,17 +117,15 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 	{
 		return NULL;
 	}
-
+	tournament->location = malloc(strlen(location) + 1);
 	tournament->games = listCreate(genericGameCopy, genericGameDestroy);
 	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
-	tournament->location = strdup(location); // //todo: check if ok
-
 	if (tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
 	{
 		tournamentDestroy(tournament);
 		return NULL;
 	}
-
+	strcpy(tournament->location, location);
 	tournament->id = id;
 	tournament->winner_id = 0;
 	tournament->has_finished = false;
@@ -207,6 +206,16 @@ List tournamentGetGames(Tournament tournament)
 	return tournament->games;
 }
 
+Map tournamentGetPlayers(Tournament tournament)
+{
+	if (tournament == NULL)
+	{
+		return NULL;
+	}
+
+	return tournament->players;
+}
+
 void tournamentEnd(Tournament tournament)
 {
 	if (tournament == NULL)
@@ -235,6 +244,8 @@ void tournamentEnd(Tournament tournament)
 
 			tournament->winner_id = playerGetId(current);
 		}
+
+		genericIntDestroy(i);
 	}
 
 	tournament->has_finished = true;
@@ -273,7 +284,7 @@ bool tournamentIsLocationValid(const char* location)
 }
 
 //todo: add param validation
-bool tournamentAddGame(Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
+bool tournamentAddGame(Map all_players_at_chess, Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (tournament == NULL)
 	{
@@ -295,7 +306,8 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 		return false;
 	}
 
-	if (tournamentAddPlayer(tournament, first_player) == false || tournamentAddPlayer(tournament, second_player) == false)
+	//what happens if one succeeds and the other doesn't? need to earse info?
+	if (tournamentAddPlayer(tournament->players, first_player) == false || tournamentAddPlayer(tournament->players, second_player) == false || tournamentAddPlayer(all_players_at_chess, first_player) == false || tournamentAddPlayer(all_players_at_chess, second_player) == false)
 	{
 		return false;
 	}
@@ -313,7 +325,8 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 		return false;
 	}
 
-	updatePlayers(tournament, first_player, second_player, winner, play_time);
+	updatePlayers(tournament->players, first_player, second_player, winner, play_time);
+	updatePlayers(all_players_at_chess, first_player, second_player, winner, play_time);
 
 	gameDestroy(game);
 	return true;
@@ -321,10 +334,10 @@ bool tournamentAddGame(Tournament tournament, int first_player, int second_playe
 
 bool tournamentHasGame(Tournament tournament, int first_player, int second_player)
 {
+
 	for (int i = 0; i < listSize(tournament->games); i++)
 	{
 		Game current = listGet(tournament->games, i);
-
 		if (gameGetPlayerId(current, FIRST_PLAYER) == first_player && gameGetPlayerId(current, SECOND_PLAYER) == second_player)
 		{
 			return true;
@@ -335,7 +348,6 @@ bool tournamentHasGame(Tournament tournament, int first_player, int second_playe
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -352,4 +364,96 @@ int playerNumGames(Tournament tournament, int player)
 	}
 
 	return playerGetNumGames(mapGet(tournament->players, &player));
+}
+
+Winner tournamentGetWinner(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	return tournament->winner_id;
+}
+
+char* tournamentGetLocation(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	return tournament->location;
+}
+
+int tournamentGetNumberGames(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	return listSize(tournament->games);
+}
+
+int tournamentGetNumberPlayers(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	return mapGetSize(tournament->players);
+}
+
+int tournamentGetLongestGameTime(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	List Games = tournamentGetGames(tournament);
+
+	if (Games == NULL)
+	{
+		return 0;
+	}
+
+	int longest_game_time = 0;
+
+	for (int i = 0; i < tournamentGetNumberGames(tournament); i++)
+	{
+		Game current = listGet(Games, i);
+
+		if (current == NULL)
+		{
+			return 0;
+		}
+
+		if (longest_game_time < gameGetTime(current))
+		{
+			longest_game_time = gameGetTime(current);
+		}
+	}
+
+	return longest_game_time;
+}
+
+double tournamentGetAvgGameTime(Tournament tournament)
+{
+	assert(tournament != NULL);
+
+	List Games = tournamentGetGames(tournament);
+
+	if (Games == NULL)
+	{
+		return 0;
+	}
+
+	double sum_game_time = 0;
+
+	for (int i = 0; i < tournamentGetNumberGames(tournament); i++)
+	{
+		Game current = listGet(Games, i);
+
+		if (current == NULL)
+		{
+			return 0;
+		}
+
+		sum_game_time += gameGetTime(current);
+	}
+
+	double avg_game_time = sum_game_time / tournamentGetNumberGames(tournament);
+
+	avg_game_time = (int)avg_game_time * 100;
+	avg_game_time = (double)avg_game_time / 100;
+
+	return avg_game_time;
 }

@@ -33,7 +33,7 @@ typedef enum
 } Winner;
 
 /** Type for representing a chess system that organizes chess tournaments */
-typedef struct Chess_System_t* ChessSystem;
+typedef struct chess_system_t* ChessSystem;
 
 /**
  * chessCreate: create an empty chess system.

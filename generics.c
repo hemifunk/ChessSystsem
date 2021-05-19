@@ -1,6 +1,6 @@
-#include "game.h"
-#include "player.h"
-#include "tournament.h"
+#include "Game.h"
+#include "Player.h"
+#include "Tournament.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>

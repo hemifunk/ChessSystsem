@@ -1,5 +1,5 @@
 #include "Game.h"
-#include "chess.h"
+#include "chessSystem.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -92,6 +92,13 @@ Winner gameGetWinner(Game game)
 	}
 
 	return game->winner;
+}
+
+void gameSetWinner(Game game, Winner winner)
+{
+	assert(game != NULL);
+
+	game->winner = winner;
 }
 
 int gameGetTime(Game game)

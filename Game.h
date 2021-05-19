@@ -1,7 +1,7 @@
 #ifndef _GAME_H
 #define _GAME_H
 
-#include "chess.h"
+#include "chessSystem.h"
 
 typedef enum
 {
@@ -26,7 +26,9 @@ Game gameCopy(Game game);
 int gameGetPlayerId(Game game, Player_Index player);
 
 /**Returns the winner */
-Winner getWinner(Game game);
+Winner gameGetWinner(Game game);
+
+void gameSetWinner(Game game, Winner winner);
 
 int gameGetTime(Game game);
 

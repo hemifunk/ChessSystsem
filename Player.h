@@ -1,7 +1,20 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
+#include "chessSystem.h"
+#include "list.h"
+#include "map.h"
+#include <stdbool.h>
+
 typedef struct Player_t* Player;
+
+typedef enum
+{
+	PLAYER_OUT_OF_MEMORY,
+	PLAYER_NULL_ARGUMENT,
+	PLAYER_ALREADY_REMOVED,
+	PLAYER_SUCCESS
+} PlayerResult;
 
 /**Creates a player*/
 Player playerCreate(int id);
@@ -44,5 +57,11 @@ int playerGetNumGames(Player player);
 
 /**Sets number of games played by player*/
 void playerSetNumGames(Player player, int num_games);
+
+bool playerGetLevel(Player player);
+
+void playerSetLevel(Player player, double updated_level);
+
+PlayerResult getNewWinner(Map players_at_chess, Map players_at_tournament, List games_of_current, int* index_game, int player_id);
 
 #endif

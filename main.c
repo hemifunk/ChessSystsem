@@ -1,4 +1,5 @@
-#include "chess.h"
+#include "Tournament.h"
+#include "chessSystem.h"
 #include <assert.h>
 
 //todo: function max len - 50 lines
@@ -9,33 +10,66 @@ int main()
 
 	ChessResult result = CHESS_SUCCESS;
 
-	result = chessAddGame(chess, 1, 11, 12, DRAW, 60);
-
-	assert(result == CHESS_TOURNAMENT_NOT_EXIST);
-
-	result = chessAddTournament(chess, 1, 10, "Israel tel aviv");
+	result = chessAddTournament(chess, 1, 2, "Israel");
 
 	assert(result == CHESS_SUCCESS);
 
-	result = chessAddTournament(chess, 2, 10, "test");
+	result = chessAddTournament(chess, 2, 2, "Paris");
 
-	assert(result == CHESS_INVALID_LOCATION);
+	assert(result == CHESS_SUCCESS);
 
-	result = chessAddGame(chess, 1, 11, 12, DRAW, 60);
+	result = chessAddGame(chess, 1, 123, 456, FIRST_PLAYER, 60);
 
 	assert(result == CHESS_SUCCESS);
 
 	result = chessAddGame(chess, 1, 11, 11, DRAW, 60);
 
-	assert(result == CHESS_INVALID_ID);
+	assert(result == CHESS_INVALID_ID); //
 
-	result = chessAddGame(chess, 1, 12, 11, DRAW, 60);
+	result = chessAddGame(chess, 2, 789, 371, SECOND_PLAYER, 70);
+
+	assert(result == CHESS_SUCCESS); //
+
+	result = chessAddGame(chess, 1, 123, 456, DRAW, 80);
 
 	assert(result == CHESS_GAME_ALREADY_EXISTS);
 
-	result = chessAddGame(chess, 2, 11, 12, DRAW, 60);
+	result = chessAddGame(chess, 1, 456, 371, SECOND_PLAYER, 84);
 
-	assert(result == CHESS_TOURNAMENT_NOT_EXIST);
+	assert(result == CHESS_SUCCESS);
+
+	result = chessAddGame(chess, 2, 123, 478, FIRST_PLAYER, 32);
+
+	assert(result == CHESS_SUCCESS);
+
+	result = chessRemovePlayer(chess, 123);
+
+	assert(result == CHESS_SUCCESS);
+
+	result = chessRemovePlayer(chess, 478);
+
+	assert(result == CHESS_SUCCESS);
+
+	result = chessEndTournament(chess, 1);
+
+	assert(result == CHESS_SUCCESS);
+
+	printf("3\n");
+
+	ChessResult* Result;
+	ChessResult r = CHESS_SUCCESS;
+	Result = &r;
+	double avg = chessCalculateAveragePlayTime(chess, 123, Result);
+
+	assert(*Result == CHESS_PLAYER_NOT_EXIST);
+
+	avg = chessCalculateAveragePlayTime(chess, 371, Result);
+
+	assert(*Result == CHESS_SUCCESS);
+
+	printf("%lf\n", avg);
+
+	result = chessRemoveTournament(chess, 2);
 
 	chessDestroy(chess);
 
