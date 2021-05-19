@@ -1,6 +1,6 @@
 #include "chessSystem.h"
-#include "Player.h"
-#include "Tournament.h"
+#include "player.h"
+#include "tournament.h"
 #include "generics.h"
 #include "map.h"
 #include <assert.h>
@@ -311,7 +311,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 			{
 				for (int j = 0; j < listSize(games_of_current); j++)
 				{
-					PlayerResult result = getNewWinner(chess->all_players, Players, listGet(games_of_current, &j), player_id);
+					PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(games_of_current, j), player_id);
 
 					if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
 					{
@@ -381,7 +381,7 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 		*result = CHESS_PLAYER_NOT_EXIST;
 	}
 
-	if (result != CHESS_SUCCESS)
+	if (*result != CHESS_SUCCESS)
 	{
 		return -1;
 	}

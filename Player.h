@@ -8,14 +8,6 @@
 
 typedef struct Player_t* Player;
 
-typedef enum
-{
-	PLAYER_OUT_OF_MEMORY,
-	PLAYER_NULL_ARGUMENT,
-	PLAYER_ALREADY_REMOVED,
-	PLAYER_SUCCESS
-} PlayerResult;
-
 /**Creates a player*/
 Player playerCreate(int id);
 
@@ -61,7 +53,5 @@ void playerSetNumGames(Player player, int num_games);
 bool playerGetLevel(Player player);
 
 void playerSetLevel(Player player, double level);
-
-PlayerResult getNewWinner(Map chess_players, Map tournament_players, Game game, int player_id);
 
 #endif
