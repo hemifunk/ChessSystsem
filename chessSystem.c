@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #define WINS_WEIGHT 6
 #define LOSES_WEIGHT -10
 #define DRAWS_WEIGHT 2
@@ -29,6 +30,7 @@ static void clearPlayersWithZeroGames(ChessSystem chess)
 	MAP_FOREACH(int*, i, all_players_at_chess)
 	{
 		Player current_player = mapGet(all_players_at_chess, i);
+
 		assert(current_player != NULL);
 
 		if (playerGetNumGames(current_player) == 0)
@@ -36,9 +38,11 @@ static void clearPlayersWithZeroGames(ChessSystem chess)
 			MAP_FOREACH(int*, j, chess->tournaments)
 			{
 				Tournament current_tournament = mapGet(chess->tournaments, j);
+
 				assert(current_tournament != NULL);
 
 				Map players_at_current_tournament = tournamentGetPlayers(current_tournament);
+
 				assert(players_at_current_tournament != NULL);
 
 				if (mapContains(players_at_current_tournament, i))
@@ -48,8 +52,10 @@ static void clearPlayersWithZeroGames(ChessSystem chess)
 
 				genericIntDestroy(j);
 			}
+
 			mapRemove(all_players_at_chess, i);
 		}
+
 		genericIntDestroy(i);
 	}
 }
@@ -59,28 +65,37 @@ static bool isContained(int* arr, int size, int number)
 	for (int i = 0; i < size; i++)
 	{
 		if (number == arr[i])
+		{
 			return true;
+		}
 	}
+
 	return false;
 }
 static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_minimal)
 {
 	double min = INT_MAX;
 	int id_min;
+
 	MAP_FOREACH(int*, i, players)
 	{
 		Player player = mapGet(players, i);
+
 		if (min > playerGetLevel(player) && !isContained(unallowed_ids, mapGetSize(players), playerGetId(player)))
 		{
 			min = playerGetLevel(player);
 			id_min = playerGetId(player);
 		}
+
 		genericIntDestroy(i);
 	}
+
 	unallowed_ids[index] = id_min;
 	*id_minimal = id_min;
+
 	return min;
 }
+
 static void updateChessPlayers(Map players, Tournament tournament)
 {
 	assert(tournament != NULL);
@@ -102,7 +117,6 @@ static void updateChessPlayers(Map players, Tournament tournament)
 			playerSetNumDraws(player_to_remove_from, playerGetNumDraws(player_to_remove_from) - playerGetNumDraws(player_to_remove_info));
 		}
 		genericIntDestroy(i);
-		//todo: maybe call a diff func.
 	}
 }
 
@@ -118,6 +132,7 @@ ChessSystem chessCreate()
 	chess->tournaments = mapCreate(genericTournamentCopy, genericIntCopy, genericTournamentDestroy, genericIntDestroy, genericIntCompare);
 	chess->all_players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
 	chess->number_games = 0;
+
 	if (chess->all_players == NULL || chess->tournaments == NULL)
 	{
 		chessDestroy(chess);
@@ -270,7 +285,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 		return CHESS_INVALID_ID;
 	}
 
-	if (!mapContains(chess->all_players, &player_id))
+	if (mapContains(chess->all_players, &player_id) == false)
 	{
 		return CHESS_PLAYER_NOT_EXIST;
 	}
@@ -296,7 +311,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 			{
 				for (int j = 0; j < listSize(games_of_current); j++)
 				{
-					PlayerResult result = getNewWinner(chess->all_players, Players, games_of_current, &j, player_id);
+					PlayerResult result = getNewWinner(chess->all_players, Players, listGet(games_of_current, &j), player_id);
 
 					if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
 					{
@@ -305,8 +320,10 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 					}
 				}
 			}
+
 			mapRemove(Players, &player_id);
 		}
+
 		genericIntDestroy(i);
 	}
 
@@ -316,6 +333,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 	return CHESS_SUCCESS;
 }
+
 ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 {
 	if (chess == NULL)
@@ -323,7 +341,7 @@ ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	if (!mapContains(chess->tournaments, &tournament_id))
+	if (mapContains(chess->tournaments, &tournament_id) == false)
 	{
 		return CHESS_TOURNAMENT_NOT_EXIST;
 	}
@@ -338,42 +356,50 @@ ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 	}
 
 	tournamentEnd(tournament_to_end);
+
 	return CHESS_SUCCESS;
 }
 
-double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResult* chess_result)
+double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResult* result)
 {
+	assert(result != NULL);
+
+	*result = CHESS_SUCCESS;
+
 	if (chess == NULL)
 	{
-		*chess_result = CHESS_NULL_ARGUMENT;
+		*result = CHESS_NULL_ARGUMENT;
 	}
+
 	if (player_id <= 0)
 	{
-		*chess_result = CHESS_INVALID_ID;
+		*result = CHESS_INVALID_ID;
 	}
-	if (!mapContains(chess->all_players, &player_id))
-	{
-		*chess_result = CHESS_PLAYER_NOT_EXIST;
-	}
-	else
-	{
-		Player player = mapGet(chess->all_players, &player_id);
-		if (player == NULL)
-		{
-			*chess_result = CHESS_OUT_OF_MEMORY;
-		}
-		else
-		{
-			double time_of_playing = playerGetTotalPlayTime(player);
-			int number_of_games = playerGetNumGames(player);
 
-			assert(playerGetNumGames(player) != 0);
-
-			*chess_result = CHESS_SUCCESS;
-			return time_of_playing / number_of_games;
-		}
+	if (mapContains(chess->all_players, &player_id) == false)
+	{
+		*result = CHESS_PLAYER_NOT_EXIST;
 	}
-	return -1;
+
+	if (result != CHESS_SUCCESS)
+	{
+		return -1;
+	}
+
+	Player player = mapGet(chess->all_players, &player_id);
+
+	if (player == NULL)
+	{
+		*result = CHESS_OUT_OF_MEMORY;
+		return -1;
+	}
+
+	double time_of_playing = playerGetTotalPlayTime(player);
+	int number_of_games = playerGetNumGames(player);
+
+	assert(playerGetNumGames(player) != 0);
+
+	return time_of_playing / number_of_games;
 }
 //todo: Check about write, append
 //todo: Consult with Gilad. getting file and not path. should I open it?
@@ -413,11 +439,14 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 			return CHESS_OUT_OF_MEMORY;
 		}
 
-		double level = (WINS_WEIGHT * playerGetNumWins(player) + LOSES_WEIGHT * playerGetNumLoses(player) +
+		assert(number_of_games_at_system > 0);
+
+		double level = (WINS_WEIGHT * playerGetNumWins(player) +
+						LOSES_WEIGHT * playerGetNumLoses(player) +
 						DRAWS_WEIGHT * playerGetNumDraws(player)) /
 					   number_of_games_at_system;
 
-		level = (int)(level * 100);
+		level = (int)(level * 100); //todo: what is this?
 		level = (double)level / 100;
 
 		playerSetLevel(player, level);
@@ -468,12 +497,16 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file)
 
 			count_ended_tournaments++;
 		}
+
 		genericIntDestroy(i);
 	}
 
 	fclose(file);
 
 	if (count_ended_tournaments == 0)
+	{
 		return CHESS_NO_TOURNAMENTS_ENDED;
+	}
+
 	return CHESS_SUCCESS;
 }

@@ -2,6 +2,8 @@
 #include "chessSystem.h"
 #include <assert.h>
 
+//TODO: REVIEW ALL CHANGES
+
 //todo: function max len - 50 lines
 //todo: line max len: 120 chars
 int main()
@@ -24,11 +26,11 @@ int main()
 
 	result = chessAddGame(chess, 1, 11, 11, DRAW, 60);
 
-	assert(result == CHESS_INVALID_ID); //
+	assert(result == CHESS_INVALID_ID);
 
 	result = chessAddGame(chess, 2, 789, 371, SECOND_PLAYER, 70);
 
-	assert(result == CHESS_SUCCESS); //
+	assert(result == CHESS_SUCCESS);
 
 	result = chessAddGame(chess, 1, 123, 456, DRAW, 80);
 
@@ -53,8 +55,6 @@ int main()
 	result = chessEndTournament(chess, 1);
 
 	assert(result == CHESS_SUCCESS);
-
-	printf("3\n");
 
 	ChessResult* Result;
 	ChessResult r = CHESS_SUCCESS;

@@ -60,8 +60,8 @@ void playerSetNumGames(Player player, int num_games);
 
 bool playerGetLevel(Player player);
 
-void playerSetLevel(Player player, double updated_level);
+void playerSetLevel(Player player, double level);
 
-PlayerResult getNewWinner(Map players_at_chess, Map players_at_tournament, List games_of_current, int* index_game, int player_id);
+PlayerResult getNewWinner(Map chess_players, Map tournament_players, Game game, int player_id);
 
 #endif
