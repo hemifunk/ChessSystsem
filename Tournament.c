@@ -443,36 +443,27 @@ int tournamentGetLongestGameTime(Tournament tournament)
 	return longest_game_time;
 }
 
-//todo: wtf
-double tournamentGetAvgGameTime(Tournament tournament)
+float tournamentGetAvgGameTime(Tournament tournament)
 {
-	assert(tournament != NULL);
-
-	List Games = tournamentGetGames(tournament);
-
-	if (Games == NULL)
+	if(tournament == NULL)
 	{
 		return 0;
 	}
 
-	double sum_game_time = 0;
+	List games = tournamentGetGames(tournament);
+
+	assert(games != NULL);
+
+	double total_time = 0;
 
 	for (int i = 0; i < tournamentGetNumberGames(tournament); i++)
 	{
-		Game current = listGet(Games, i);
+		Game current = listGet(games, i);
 
-		if (current == NULL)
-		{
-			return 0;
-		}
+		assert(current != NULL);
 
-		sum_game_time += gameGetTime(current);
+		total_time += gameGetTime(current);
 	}
 
-	double avg_game_time = sum_game_time / tournamentGetNumberGames(tournament);
-
-	avg_game_time = (int)avg_game_time * 100; //todo: what is this?
-	avg_game_time = avg_game_time / 100;
-
-	return avg_game_time;
+	return total_time / tournamentGetNumberGames(tournament);
 }

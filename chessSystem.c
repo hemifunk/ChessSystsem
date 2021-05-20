@@ -67,7 +67,7 @@ static void removePlayerStats(Map players, Game game, int removed_player_id)
 	Player removed_player = mapGet(players, &removed_player_id);
 	Player other_player = mapGet(players, first_player_id != removed_player_id ? &first_player_id : &second_player_id);
 
-	if (removed_player != NULL) //todo: is it right?
+	if (removed_player != NULL)
 	{
 		playerSetNumWins(removed_player, 0);
 		playerSetNumDraws(removed_player, 0);
@@ -288,7 +288,6 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player)
 	return CHESS_SUCCESS;
 }
 
-//todo: review
 ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 {
 	if (chess == NULL)
@@ -361,7 +360,6 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 //todo: shorten
 ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 {
-	//todo: empty file if no players.
 	if (chess == NULL || file == NULL)
 	{
 		return CHESS_NULL_ARGUMENT;

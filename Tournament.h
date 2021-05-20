@@ -44,6 +44,6 @@ int tournamentGetNumberPlayers(Tournament tournament);
 
 int tournamentGetLongestGameTime(Tournament tournament);
 
-double tournamentGetAvgGameTime(Tournament tournament);
+float tournamentGetAvgGameTime(Tournament tournament);
 
 #endif
