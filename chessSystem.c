@@ -21,8 +21,6 @@ struct chess_system_t
 	Map all_players;
 };
 
-//TODO: TIME CAN BE 0. FIND ALL time <= 0 occurances.
-
 static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 {
 	if (chess == NULL || tournament == NULL)
@@ -130,7 +128,6 @@ static void calculateLevels(ChessSystem chess)
 	}
 }
 
-//todo: test
 static ChessResult savePlayers(ChessSystem chess, FILE* file)
 {
 	if (chess == NULL || file == NULL)
@@ -336,8 +333,6 @@ ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 	return CHESS_SUCCESS;
 }
 
-//todo: who is the winner if we removed both players
-//todo: how does it impact stats calculations
 ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 {
 	if (chess == NULL)
