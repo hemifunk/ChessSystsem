@@ -155,7 +155,7 @@ static ChessResult savePlayers(ChessSystem chess, FILE* file)
 
 			if (old_top_player != NULL &&
 				(playerGetLevel(player) > playerGetLevel(old_top_player) ||
-				(playerGetLevel(player) == playerGetLevel(old_top_player) && playerGetId(player) >= playerGetId(old_top_player))))
+				(playerGetLevel(player) == playerGetLevel(old_top_player) && playerGetId(player) <= playerGetId(old_top_player))))
 			{
 				genericIntDestroy(i);
 				continue;
