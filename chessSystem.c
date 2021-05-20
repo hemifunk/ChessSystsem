@@ -1,8 +1,8 @@
 #include "chessSystem.h"
-#include "player.h"
-#include "tournament.h"
 #include "generics.h"
 #include "map.h"
+#include "player.h"
+#include "tournament.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -58,9 +58,9 @@ static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_m
 	return min;
 }
 
-static void removeTournamentStats(Map all_players, Tournament tournament)
+static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 {
-	if(all_players == NULL || tournament == NULL)
+	if (chess == NULL || tournament == NULL)
 	{
 		return;
 	}
@@ -69,20 +69,20 @@ static void removeTournamentStats(Map all_players, Tournament tournament)
 
 	MAP_FOREACH(int*, id, tournament_players)
 	{
-		Player current = mapGet(tournament_players, id);
+		Player player_tournament = mapGet(tournament_players, id);
 
-		Player current_global = mapGet(all_players, id);
+		Player player_global = mapGet(chess->all_players, id);
 
-		assert(current != NULL && current_global != NULL);
-		
-		playerSetNumGames(current_global, playerGetNumGames(current_global) - playerGetNumGames(current));
+		assert(player_tournament != NULL && player_global != NULL);
 
-		playerSetNumWins(current_global, playerGetNumWins(current_global) - playerGetNumWins(current));
+		playerSetNumGames(player_global, playerGetNumGames(player_global) - playerGetNumGames(player_tournament));
 
-		playerSetNumLoses(current_global, playerGetNumLoses(current_global) - playerGetNumLoses(current));
+		playerSetNumWins(player_global, playerGetNumWins(player_global) - playerGetNumWins(player_tournament));
 
-		playerSetNumDraws(current_global, playerGetNumDraws(current_global) - playerGetNumDraws(current));
-		
+		playerSetNumLoses(player_global, playerGetNumLoses(player_global) - playerGetNumLoses(player_tournament));
+
+		playerSetNumDraws(player_global, playerGetNumDraws(player_global) - playerGetNumDraws(player_tournament));
+
 		genericIntDestroy(id);
 	}
 }
@@ -176,7 +176,7 @@ ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id)
 
 	Tournament tournament = mapGet(chess->tournaments, &tournament_id);
 
-	removeTournamentStats(chess->all_players, tournament);
+	removeTournamentStats(chess, tournament);
 
 	mapRemove(chess->tournaments, &tournament_id);
 
@@ -216,7 +216,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 		return CHESS_TOURNAMENT_ENDED;
 	}
 
-	if (tournamentHasGame(tournament, first_player, second_player, false))
+	if (tournamentHasGame(tournament, first_player, second_player))
 	{
 		return CHESS_GAME_ALREADY_EXISTS;
 	}
@@ -237,6 +237,10 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 	return CHESS_SUCCESS;
 }
 
+//todo: review
+//todo: how to correctly handle removing a player?
+// remove him completley from global_players and keep him tournamtn_players?
+// maybe remove him from global_players and tournamtn_players?
 //todo: consult with Gilad about check-ups for NULL_ARGAUMENTS
 ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 {
@@ -257,34 +261,25 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 	MAP_FOREACH(int*, i, chess->tournaments)
 	{
-		Tournament current = mapGet(chess->tournaments, i);
+		Tournament tournament = mapGet(chess->tournaments, i);
 
-		assert(current != NULL);
+		assert(tournament != NULL);
 
-		if (tournamentHasEnded(current) == false)
+		if (tournamentHasEnded(tournament) == false && mapContains(tournamentGetPlayers(tournament), &player_id))
 		{
-			List current_games = tournamentGetGames(current);
-			Map Players = tournamentGetPlayers(current);
-
-			if (Players == NULL)
+			List games = tournamentGetGames(tournament);
+			Map Players = tournamentGetPlayers(tournament);
+			
+			for (int j = 0; j < listSize(games); j++)
 			{
-				genericIntDestroy(i);
-				return CHESS_OUT_OF_MEMORY;
-			}
+				PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(games, j), player_id);
 
-			if (current_games != NULL)
-			{
-				for (int j = 0; j < listSize(current_games); j++)
+				if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
 				{
-					PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(current_games, j), player_id);
-
-					if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
-					{
-						genericIntDestroy(i);
-						return CHESS_OUT_OF_MEMORY;
-					}
+					genericIntDestroy(i);
+					return CHESS_OUT_OF_MEMORY;
 				}
-			}
+			}	
 
 			mapRemove(Players, &player_id);
 		}
