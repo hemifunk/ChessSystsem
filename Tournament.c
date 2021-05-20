@@ -343,12 +343,12 @@ bool tournamentAddGame(Map chess_players, Tournament tournament, int first_playe
 		return false;
 	}
 
-	if(mapContains(tournament->players, first_player) == false)
+	if(mapContains(tournament->players, &first_player) == false)
 	{
 		tournament->total_num_of_players += 1;
 	}
 
-	if (mapContains(tournament->players, second_player) == false)
+	if (mapContains(tournament->players, &second_player) == false)
 	{
 		tournament->total_num_of_players += 1;
 	}
