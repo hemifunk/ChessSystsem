@@ -86,7 +86,8 @@ static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 	}
 }
 
-static bool removeGameStats(ChessSystem chess, Tournament tournament, Game game, int removed_player)
+//todo: should we remove the player from all_players and from tournament_players???
+static bool removePlayerStats(ChessSystem chess, Tournament tournament, Game game, int removed_player)
 {
 	if (chess == NULL || tournament == NULL || game == NULL || removed_player <= 0)
 	{
@@ -309,7 +310,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 			for (int j = 0; j < tournamentGetNumberGames(tournament); j++)
 			{
-				removeGameStats(chess, tournament, listGet(tournamentGetGames(tournament), j), player_id);
+				removePlayerStats(chess, tournament, listGet(tournamentGetGames(tournament), j), player_id);
 			}
 
 			mapRemove(local_players, &player_id);

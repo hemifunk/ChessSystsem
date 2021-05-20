@@ -5,6 +5,8 @@
 //TODO: REVIEW ALL CHANGES
 //todo: update chessSystsem.h to newest file
 //todo: check updated specifications
+//todo: go over piazza questions, a lot of weird edge cases presented there
+//todo: write tests
 
 //todo: function max len - 50 lines
 //todo: line max len: 120 chars
