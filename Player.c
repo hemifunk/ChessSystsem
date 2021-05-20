@@ -181,4 +181,3 @@ void playerSetLevel(Player player, double level)
 
 	player->level = level;
 }
-

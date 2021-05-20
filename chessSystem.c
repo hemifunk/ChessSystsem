@@ -69,25 +69,24 @@ static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 
 	MAP_FOREACH(int*, id, tournament_players)
 	{
-		Player player_tournament = mapGet(tournament_players, id);
+		Player local_data = mapGet(tournament_players, id);
+		Player global_data = mapGet(chess->all_players, id);
 
-		Player player_global = mapGet(chess->all_players, id);
+		assert(local_data != NULL && global_data != NULL);
 
-		assert(player_tournament != NULL && player_global != NULL);
+		playerSetNumGames(global_data, playerGetNumGames(global_data) - playerGetNumGames(local_data));
 
-		playerSetNumGames(player_global, playerGetNumGames(player_global) - playerGetNumGames(player_tournament));
+		playerSetNumWins(global_data, playerGetNumWins(global_data) - playerGetNumWins(local_data));
 
-		playerSetNumWins(player_global, playerGetNumWins(player_global) - playerGetNumWins(player_tournament));
+		playerSetNumLoses(global_data, playerGetNumLoses(global_data) - playerGetNumLoses(local_data));
 
-		playerSetNumLoses(player_global, playerGetNumLoses(player_global) - playerGetNumLoses(player_tournament));
-
-		playerSetNumDraws(player_global, playerGetNumDraws(player_global) - playerGetNumDraws(player_tournament));
+		playerSetNumDraws(global_data, playerGetNumDraws(global_data) - playerGetNumDraws(local_data));
 
 		genericIntDestroy(id);
 	}
 }
 
-static bool removePlayerData(ChessSystem chess, Tournament tournament, Game game, int removed_player)
+static bool removeGameStats(ChessSystem chess, Tournament tournament, Game game, int removed_player)
 {
 	if (chess == NULL || tournament == NULL || game == NULL || removed_player <= 0)
 	{
@@ -312,7 +311,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 
 			for (int j = 0; j < listSize(games); j++)
 			{
-				removePlayerData(chess, tournament, listGet(games, j), player_id);
+				removeGameStats(chess, tournament, listGet(games, j), player_id);
 			}
 
 			mapRemove(local_players, &player_id);
@@ -395,6 +394,7 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 
 	return time_of_playing / number_of_games;
 }
+
 //todo: Check about write, append
 //todo: Consult with Gilad. getting file and not path. should I open it?
 ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)

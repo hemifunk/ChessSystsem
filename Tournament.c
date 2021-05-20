@@ -218,12 +218,7 @@ Map tournamentGetPlayers(Tournament tournament)
 
 void tournamentEnd(Tournament tournament)
 {
-	if (tournament == NULL)
-	{
-		return;
-	}
-
-	if (tournament->has_finished)
+	if (tournament == NULL || tournament->has_finished)
 	{
 		return;
 	}
