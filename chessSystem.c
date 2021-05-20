@@ -99,6 +99,96 @@ static void removePlayerStats(Map players, Game game, int removed_player_id)
 	}
 }
 
+static void calculateLevels(ChessSystem chess)
+{
+	if (chess == NULL)
+	{
+		return;
+	}
+
+	MAP_FOREACH(int*, i, chess->all_players)
+	{
+		Player player = mapGet(chess->all_players, i);
+
+		assert(player != NULL);
+
+		if (playerGetNumGames(player) <= 0)
+		{
+			playerSetLevel(player, 0);
+			genericIntDestroy(i);
+			continue;
+		}
+
+		const float level = (WINS_WEIGHT * playerGetNumWins(player) +
+							 LOSES_WEIGHT * playerGetNumLoses(player) +
+							 DRAWS_WEIGHT * playerGetNumDraws(player)) /
+							(float)playerGetNumGames(player);
+
+		playerSetLevel(player, level);
+
+		genericIntDestroy(i);
+	}
+}
+
+//todo: test
+static ChessResult savePlayers(ChessSystem chess, FILE* file)
+{
+	if (chess == NULL || file == NULL)
+	{
+		return CHESS_NULL_ARGUMENT;
+	}
+
+	Player new_top_player = NULL;
+	Player old_top_player = NULL;
+
+	do
+	{
+		MAP_FOREACH(int*, i, chess->all_players)
+		{
+			Player player = mapGet(chess->all_players, i);
+
+			if (playerGetNumGames(player) <= 0)
+			{
+				genericIntDestroy(i);
+				continue;
+			}
+
+			if (old_top_player != NULL &&
+				(playerGetLevel(player) > playerGetLevel(old_top_player) ||
+				(playerGetLevel(player) == playerGetLevel(old_top_player) && playerGetId(player) >= playerGetId(old_top_player))))
+			{
+				genericIntDestroy(i);
+				continue;
+			}
+
+			if (new_top_player == NULL || 
+				playerGetLevel(player) > playerGetLevel(new_top_player) ||
+				(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
+			{
+				new_top_player = player;
+			}
+
+			genericIntDestroy(i);
+		}
+
+		if (new_top_player == NULL)
+		{
+			break;
+		}
+
+		if (fprintf(file, "%d %.2f\n", playerGetId(new_top_player), playerGetLevel(new_top_player)) <= 0)
+		{
+			return CHESS_SAVE_FAILURE;
+		}
+
+		old_top_player = new_top_player;
+		new_top_player = NULL;
+
+	} while (true);
+
+	return CHESS_SUCCESS;
+}
+
 ChessSystem chessCreate()
 {
 	ChessSystem chess = malloc(sizeof(struct chess_system_t));
@@ -374,8 +464,6 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 	return (double)time_of_playing / number_of_games;
 }
 
-//todo: review
-//todo: shorten
 ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 {
 	if (chess == NULL || file == NULL)
@@ -383,94 +471,11 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	Player new_top_player = NULL;
+	calculateLevels(chess);
 
-	MAP_FOREACH(int*, i, chess->all_players)
-	{
-		Player player = mapGet(chess->all_players, i);
+	ChessResult result = savePlayers(chess, file);
 
-		if (playerGetNumGames(player) <= 0)
-		{
-			genericIntDestroy(i);
-
-			continue;
-		}
-
-		assert(player != NULL);
-
-		if (playerGetNumGames(player) <= 0)
-		{
-			playerSetLevel(player, 0);
-			genericIntDestroy(i);
-			continue;
-		}
-
-		const float level = (WINS_WEIGHT * playerGetNumWins(player) + LOSES_WEIGHT * playerGetNumLoses(player) + DRAWS_WEIGHT * playerGetNumDraws(player)) / (float)playerGetNumGames(player);
-
-		playerSetLevel(player, level);
-
-		if(new_top_player == NULL)
-		{
-			new_top_player = player;
-			genericIntDestroy(i);
-			continue;
-		}
-
-		if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
-			(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
-		{
-			new_top_player = player;
-		}
-
-		genericIntDestroy(i);
-	}
-
-	// todo: SO UGLY AAAAAAAAAAAAAA
-	while (new_top_player != NULL)
-	{
-		if (fprintf(file, "%d %.2f\n", playerGetId(new_top_player), playerGetLevel(new_top_player)) <= 0)
-		{
-			return CHESS_SAVE_FAILURE;
-		}
-
-		Player old_top_player = new_top_player;
-
-		new_top_player = NULL;
-
-		MAP_FOREACH(int*, i, chess->all_players)
-		{
-			Player player = mapGet(chess->all_players, i);
-
-			if (playerGetLevel(player) > playerGetLevel(old_top_player) || playerGetNumGames(player) <= 0)
-			{
-				genericIntDestroy(i);
-				continue;
-			}
-
-			if (playerGetLevel(player) == playerGetLevel(old_top_player) && playerGetId(player) >= playerGetId(old_top_player))
-			{
-				genericIntDestroy(i);
-				continue;
-			}
-
-			if (new_top_player == NULL)
-			{
-				new_top_player = player;
-				genericIntDestroy(i);
-				continue;
-			}
-
-			if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
-				(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
-			{
-				new_top_player = player;
-			}
-
-			genericIntDestroy(i);
-		}
-	}
-
-	return CHESS_SUCCESS;
+	return result;
 }
 
 ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file)
