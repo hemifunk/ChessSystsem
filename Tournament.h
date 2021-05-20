@@ -29,7 +29,7 @@ bool tournamentHasEnded(Tournament tournament);
 
 bool tournamentHasGame(Tournament tournament, int first_player, int second_player);
 
-int playerNumGames(Tournament tournament, int player_id);
+int tournamentPlayerNumGames(Tournament tournament, int player_id);
 
 int tournamentGetMaxGamesPerPlayer(Tournament tournament);
 

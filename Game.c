@@ -124,3 +124,20 @@ bool gameHasPlayerRemoved(Game game)
 
 	return game->player_removed;
 }
+
+void gameRemovePlayer(Game game, int player)
+{
+	assert(game != NULL);
+	assert(player > 0);
+
+	if (game->first_player == player)
+	{
+		game->winner = SECOND_PLAYER;
+		game->player_removed = true;
+	}
+	else if (game->second_player == player)
+	{
+		game->winner = FIRST_PLAYER;
+		game->player_removed = true;
+	}
+}

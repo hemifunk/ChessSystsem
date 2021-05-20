@@ -38,4 +38,6 @@ void gameRemovePlayer(Game game, int player);
 
 bool gameHasPlayerRemoved(Game game);
 
+void gameRemovePlayer(Game game, int player);
+
 #endif

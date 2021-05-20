@@ -310,12 +310,12 @@ bool tournamentAddGame(Map chess_players, Tournament tournament, int first_playe
 		return false;
 	}
 
-	if (playerNumGames(tournament, first_player) >= tournament->max_games_per_player)
+	if (tournamentPlayerNumGames(tournament, first_player) >= tournament->max_games_per_player)
 	{
 		return false;
 	}
 
-	if (playerNumGames(tournament, second_player) >= tournament->max_games_per_player)
+	if (tournamentPlayerNumGames(tournament, second_player) >= tournament->max_games_per_player)
 	{
 		return false;
 	}
@@ -368,7 +368,7 @@ bool tournamentHasGame(Tournament tournament, int first_player, int second_playe
 	return false;
 }
 
-int playerNumGames(Tournament tournament, int player)
+int tournamentPlayerNumGames(Tournament tournament, int player)
 {
 	if (tournament == NULL || player <= 0)
 	{

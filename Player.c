@@ -172,6 +172,7 @@ void playerSetNumGames(Player player, int num_games)
 bool playerGetLevel(Player player)
 {
 	assert(player != NULL);
+	
 	return player->level;
 }
 
