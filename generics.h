@@ -1,5 +1,5 @@
-#ifndef _GENERICS_H
-#define _GENERICS_H
+#ifndef GENERICS_H_
+#define GENERICS_H_
 
 void* genericIntCopy(void* value);
 

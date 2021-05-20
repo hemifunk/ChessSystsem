@@ -1,8 +1,7 @@
-#ifndef _GAME_H
-#define _GAME_H
+#ifndef GAME_H_
+#define GAME_H_
 
 #include "chessSystem.h"
-#include "map.h"
 #include <stdbool.h>
 
 typedef enum
@@ -37,7 +36,5 @@ int gameGetTime(Game game);
 void gameRemovePlayer(Game game, int player);
 
 bool gameHasPlayerRemoved(Game game);
-
-void gameRemovePlayer(Game game, int player);
 
 #endif

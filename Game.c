@@ -1,8 +1,5 @@
 #include "game.h"
 #include "chessSystem.h"
-#include "list.h"
-#include "map.h"
-#include "player.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>

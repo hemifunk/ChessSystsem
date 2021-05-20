@@ -1,17 +1,12 @@
-#ifndef _PLAYER_H
-#define _PLAYER_H
-
-#include "chessSystem.h"
-#include "list.h"
-#include "map.h"
-#include <stdbool.h>
+#ifndef PLAYER_H_
+#define PLAYER_H_
 
 typedef struct Player_t* Player;
 
 /**Creates a player*/
 Player playerCreate(int id);
 
-/**Destorys a player*/
+/**Destroys a player*/
 void playerDestroy(Player player);
 
 /**Copies a given player*/
@@ -50,8 +45,8 @@ int playerGetNumGames(Player player);
 /**Sets number of games played by player*/
 void playerSetNumGames(Player player, int num_games);
 
-bool playerGetLevel(Player player);
+float playerGetLevel(Player player);
 
-void playerSetLevel(Player player, double level);
+void playerSetLevel(Player player, float level);
 
 #endif

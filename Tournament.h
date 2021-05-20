@@ -1,13 +1,10 @@
-#ifndef _TOURNAMENT_H
-#define _TOURNAMENT_H
+#ifndef TOURNAMENT_H_
+#define TOURNAMENT_H_
 
-#include "Game.h"
-#include "Player.h"
 #include "chessSystem.h"
 #include "list.h"
 #include "map.h"
 #include <stdbool.h>
-#include <string.h>
 
 typedef struct Tournament_t* Tournament;
 

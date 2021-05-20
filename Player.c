@@ -1,8 +1,4 @@
-#include "Player.h"
-#include "Game.h"
-#include "chessSystem.h"
-#include "list.h"
-#include "map.h"
+#include "player.h"
 #include <assert.h>
 #include <stdlib.h>
 
@@ -14,7 +10,7 @@ struct Player_t
 	int num_draws;
 	int total_play_time;
 	int num_games;
-	double level;
+	float level;
 };
 
 Player playerCreate(int id)
@@ -37,7 +33,7 @@ Player playerCreate(int id)
 	player->num_loses = 0;
 	player->num_wins = 0;
 	player->total_play_time = 0;
-	player->level = 0.0;
+	player->level = 0;
 	return player;
 }
 
@@ -169,14 +165,14 @@ void playerSetNumGames(Player player, int num_games)
 	player->num_games = num_games;
 }
 
-bool playerGetLevel(Player player)
+float playerGetLevel(Player player)
 {
 	assert(player != NULL);
-	
+
 	return player->level;
 }
 
-void playerSetLevel(Player player, double level)
+void playerSetLevel(Player player, float level)
 {
 	assert(player != NULL);
 

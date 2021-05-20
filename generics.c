@@ -2,7 +2,6 @@
 #include "player.h"
 #include "tournament.h"
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 void* genericIntCopy(void* value)
@@ -97,8 +96,8 @@ int genericIntCompare(void* left, void* right)
 		return 0;
 	}
 
-	int left_val = *(int*)left;
-	int right_val = *(int*)right;
+	const int left_val = *(int*)left;
+	const int right_val = *(int*)right;
 
 	return left_val - right_val;
 }

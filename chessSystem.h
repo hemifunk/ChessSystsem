@@ -1,5 +1,5 @@
-#ifndef _CHESSSYSTEM_H
-#define _CHESSSYSTEM_H
+#ifndef CHESSSYSTEM_H_
+#define CHESSSYSTEM_H_
 
 #include <stdio.h>
 
@@ -41,7 +41,7 @@ typedef struct chess_system_t* ChessSystem;
  * @return A new chess system in case of success, and NULL otherwise (e.g.
  *     in case of an allocation error)
  */
-ChessSystem chessCreate();
+ChessSystem chessCreate(void);
 
 /**
  * chessDestroy: free a chess system, and all its contents, from
@@ -67,8 +67,7 @@ void chessDestroy(ChessSystem chess);
  *     CHESS_TOURNAMENT_ALREADY_EXIST - if a tournament with the given id already exist.
  *     CHESS_SUCCESS - if tournament was added successfully.
  */
-ChessResult chessAddTournament(ChessSystem chess, int tournament_id,
-							   int max_games_per_player, const char* tournament_location);
+ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_games_per_player, const char* tournament_location);
 
 /**
  * chessAddGame: add a new match to a chess tournament.

@@ -8,10 +8,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+#include "game.h"
 
 #define WINS_WEIGHT 6
-#define LOSES_WEIGHT -10
+#define LOSES_WEIGHT (-10)
 #define DRAWS_WEIGHT 2
 
 struct chess_system_t
@@ -19,43 +20,6 @@ struct chess_system_t
 	Map tournaments;
 	Map all_players;
 };
-
-static bool hasNum(int* arr, int size, int number)
-{
-	for (int i = 0; i < size; i++)
-	{
-		if (number == arr[i])
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-static double findMinLevel(Map players, int* unallowed_ids, int index, int* id_minimal)
-{
-	double min = INT_MAX;
-	int id_min;
-
-	MAP_FOREACH(int*, i, players)
-	{
-		Player player = mapGet(players, i);
-
-		if (min > playerGetLevel(player) && hasNum(unallowed_ids, mapGetSize(players), playerGetId(player) == false))
-		{
-			min = playerGetLevel(player);
-			id_min = playerGetId(player);
-		}
-
-		genericIntDestroy(i);
-	}
-
-	unallowed_ids[index] = id_min;
-	*id_minimal = id_min;
-
-	return min;
-}
 
 static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 {
@@ -132,7 +96,7 @@ static void removePlayerStats(Map players, Game game, int removed_player_id)
 	}
 }
 
-ChessSystem chessCreate()
+ChessSystem chessCreate(void)
 {
 	ChessSystem chess = malloc(sizeof(struct chess_system_t));
 
@@ -367,13 +331,14 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 		*result = CHESS_INVALID_ID;
 	}
 
+	if (*result != CHESS_SUCCESS)
+	{
+		return -1;
+	}
+
 	if (mapContains(chess->all_players, &player_id) == false)
 	{
 		*result = CHESS_PLAYER_NOT_EXIST;
-	}
-
-	if (*result != CHESS_SUCCESS)
-	{
 		return -1;
 	}
 
@@ -381,15 +346,15 @@ double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResu
 
 	assert(player != NULL);
 
-	int time_of_playing = playerGetTotalPlayTime(player);
-	int number_of_games = playerGetNumGames(player);
+	const int time_of_playing = playerGetTotalPlayTime(player);
+	const int number_of_games = playerGetNumGames(player);
 
 	if (number_of_games == 0)
 	{
 		return 0;
 	}
 
-	return ((double)time_of_playing) / number_of_games;
+	return (double)time_of_playing / number_of_games;
 }
 
 //todo: review
@@ -416,7 +381,6 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 		return CHESS_SUCCESS;
 	}
 
-	Player old_top_player = NULL;
 	Player new_top_player = NULL;
 
 	MAP_FOREACH(int*, i, chess->all_players)
@@ -432,18 +396,12 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 
 		assert(player != NULL);
 
-		double level = (WINS_WEIGHT * playerGetNumWins(player) +
-						LOSES_WEIGHT * playerGetNumLoses(player) +
-						DRAWS_WEIGHT * playerGetNumDraws(player)) /
-					   (double)num_games;
+		const float level = (WINS_WEIGHT * playerGetNumWins(player) + LOSES_WEIGHT * playerGetNumLoses(player) + DRAWS_WEIGHT * playerGetNumDraws(player)) / (float)num_games;
 
 		playerSetLevel(player, level);
 
-		if (playerGetLevel(player) > new_top_player)
-		{
-			new_top_player = player;
-		}
-		else if (playerGetLevel(player) == new_top_player && playerGetId(player) < playerGetId(new_top_player))
+		if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
+			playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player))
 		{
 			new_top_player = player;
 		}
@@ -454,12 +412,13 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 	// todo: SO UGLY AAAAAAAAAAAAAA
 	while (new_top_player != NULL)
 	{
-		if (fprintf(file, "%d %d\n", playerGetId(new_top_player), playerGetLevel(new_top_player)) <= 0)
+		if (fprintf(file, "%d %f\n", playerGetId(new_top_player), playerGetLevel(new_top_player)) <= 0)
 		{
 			return CHESS_SAVE_FAILURE;
 		}
 
-		old_top_player = new_top_player;
+		Player old_top_player = new_top_player;
+
 		new_top_player = NULL;
 
 		MAP_FOREACH(int*, i, chess->all_players)
@@ -485,11 +444,8 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 				continue;
 			}
 
-			if (playerGetLevel(player) > new_top_player)
-			{
-				new_top_player = player;
-			}
-			else if (playerGetLevel(player) == new_top_player && playerGetId(player) < playerGetId(new_top_player))
+			if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
+				playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player))
 			{
 				new_top_player = player;
 			}
@@ -503,7 +459,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 
 ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file)
 {
-	if (chess = NULL || path_file == NULL)
+	if (chess == NULL || path_file == NULL)
 	{
 		return CHESS_NULL_ARGUMENT;
 	}

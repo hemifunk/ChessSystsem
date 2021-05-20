@@ -1,5 +1,5 @@
-#include "Tournament.h"
 #include "chessSystem.h"
+#include "tournament.h"
 #include <assert.h>
 
 //TODO: REVIEW ALL CHANGES
@@ -60,9 +60,8 @@ int main()
 
 	assert(result == CHESS_SUCCESS);
 
-	ChessResult* Result;
 	ChessResult r = CHESS_SUCCESS;
-	Result = &r;
+	ChessResult* Result = &r;
 	double avg = chessCalculateAveragePlayTime(chess, 123, Result);
 
 	assert(*Result == CHESS_PLAYER_NOT_EXIST);

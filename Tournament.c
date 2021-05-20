@@ -1,9 +1,9 @@
-#include "Tournament.h"
-#include "Game.h"
-#include "Player.h"
+#include "tournament.h"
+#include "game.h"
 #include "generics.h"
 #include "list.h"
 #include "map.h"
+#include "player.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -117,15 +117,19 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 	{
 		return NULL;
 	}
+
 	tournament->location = malloc(strlen(location) + 1);
 	tournament->games = listCreate(genericGameCopy, genericGameDestroy);
 	tournament->players = mapCreate(genericPlayerCopy, genericIntCopy, genericPlayerDestroy, genericIntDestroy, genericIntCompare);
+
 	if (tournament->games == NULL || tournament->players == NULL || tournament->location == NULL)
 	{
 		tournamentDestroy(tournament);
 		return NULL;
 	}
+
 	strcpy(tournament->location, location);
+
 	tournament->id = id;
 	tournament->winner_id = 0;
 	tournament->has_finished = false;
@@ -245,11 +249,8 @@ void tournamentEnd(Tournament tournament)
 
 			assert(old_winner != NULL);
 
-			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner))
-			{
-				tournament->winner_id = playerGetId(current);
-			}
-			else if (playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id)
+			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner) ||
+				playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id)
 			{
 				tournament->winner_id = playerGetId(current);
 			}
@@ -354,12 +355,12 @@ bool tournamentHasGame(Tournament tournament, int first_player, int second_playe
 	{
 		Game current = listGet(tournament->games, i);
 
-		if (gameGetPlayerId(current, FIRST_PLAYER) == first_player && gameGetPlayerId(current, SECOND_PLAYER) == second_player && gameHasPlayerRemoved(current) == false)
+		if (gameGetPlayerId(current, PLAYER_1) == first_player && gameGetPlayerId(current, PLAYER_2) == second_player && gameHasPlayerRemoved(current) == false)
 		{
 			return true;
 		}
 
-		if (gameGetPlayerId(current, FIRST_PLAYER) == second_player && gameGetPlayerId(current, SECOND_PLAYER) == first_player && gameHasPlayerRemoved(current) == false)
+		if (gameGetPlayerId(current, PLAYER_1) == second_player && gameGetPlayerId(current, PLAYER_2) == first_player && gameHasPlayerRemoved(current) == false)
 		{
 			return true;
 		}
@@ -442,6 +443,7 @@ int tournamentGetLongestGameTime(Tournament tournament)
 	return longest_game_time;
 }
 
+//todo: wtf
 double tournamentGetAvgGameTime(Tournament tournament)
 {
 	assert(tournament != NULL);
@@ -469,8 +471,8 @@ double tournamentGetAvgGameTime(Tournament tournament)
 
 	double avg_game_time = sum_game_time / tournamentGetNumberGames(tournament);
 
-	avg_game_time = (int)avg_game_time * 100;
-	avg_game_time = (double)avg_game_time / 100;
+	avg_game_time = (int)avg_game_time * 100; //todo: what is this?
+	avg_game_time = avg_game_time / 100;
 
 	return avg_game_time;
 }
