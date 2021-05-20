@@ -238,11 +238,26 @@ void tournamentEnd(Tournament tournament)
 
 		int score = playerGetNumWins(current) * 2 + playerGetNumDraws(current);
 
-		if (score >= max_score)
+		if (score > max_score || max_score == 0 || tournament->winner_id == 0)
 		{
 			max_score = score;
 
 			tournament->winner_id = playerGetId(current);
+		}
+		else if (score == max_score)
+		{
+			Player old_winner = mapGet(tournament->players, &tournament->winner_id);
+
+			assert(old_winner != NULL);
+
+			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner))
+			{
+				tournament->winner_id = playerGetId(current);
+			}
+			else if (playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id)
+			{
+				tournament->winner_id = playerGetId(current);
+			}
 		}
 
 		genericIntDestroy(i);

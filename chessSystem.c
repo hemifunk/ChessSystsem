@@ -87,6 +87,50 @@ static void removeTournamentStats(ChessSystem chess, Tournament tournament)
 	}
 }
 
+static bool removePlayerData(ChessSystem chess, Tournament tournament, Game game, int removed_player)
+{
+	if (chess == NULL || tournament == NULL || game == NULL || removed_player <= 0)
+	{
+		return false;
+	}
+
+	int first_player = gameGetPlayerId(game, PLAYER_1);
+	int second_player = gameGetPlayerId(game, PLAYER_2);
+
+	if (first_player != removed_player && second_player != removed_player)
+	{
+		return true;
+	}
+
+	Player global_data = mapGet(chess->all_players, first_player != removed_player ? &first_player : &second_player);
+	Player local_data = mapGet(tournamentGetPlayers(tournament), first_player != removed_player ? &first_player : &second_player);
+
+	if (global_data == NULL || local_data == NULL) // other player was also removed
+	{
+		return true;
+	}
+
+	if (gameGetWinner(game) == DRAW)
+	{
+		playerSetNumDraws(global_data, playerGetNumDraws(global_data) - 1);
+		playerSetNumDraws(local_data, playerGetNumDraws(local_data) - 1);
+
+		playerSetNumWins(global_data, playerGetNumWins(global_data) + 1);
+		playerSetNumWins(local_data, playerGetNumWins(local_data) + 1);
+	}
+	else if ((gameGetWinner(game) == FIRST_PLAYER && first_player == removed_player) ||
+			 (gameGetWinner(game) == SECOND_PLAYER && second_player == removed_player))
+	{
+		playerSetNumLoses(global_data, playerGetNumLoses(global_data) - 1);
+		playerSetNumLoses(local_data, playerGetNumLoses(local_data) - 1);
+
+		playerSetNumWins(global_data, playerGetNumWins(global_data) + 1);
+		playerSetNumWins(local_data, playerGetNumWins(local_data) + 1);
+	}
+
+	return true;
+}
+
 ChessSystem chessCreate()
 {
 	ChessSystem chess = malloc(sizeof(struct chess_system_t));
@@ -238,10 +282,6 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 }
 
 //todo: review
-//todo: how to correctly handle removing a player?
-// remove him completley from global_players and keep him tournamtn_players?
-// maybe remove him from global_players and tournamtn_players?
-//todo: consult with Gilad about check-ups for NULL_ARGAUMENTS
 ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 {
 	if (chess == NULL)
@@ -268,20 +308,14 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 		if (tournamentHasEnded(tournament) == false && mapContains(tournamentGetPlayers(tournament), &player_id))
 		{
 			List games = tournamentGetGames(tournament);
-			Map Players = tournamentGetPlayers(tournament);
-			
+			Map local_players = tournamentGetPlayers(tournament);
+
 			for (int j = 0; j < listSize(games); j++)
 			{
-				PlayerResult result = gameGetNewWinner(chess->all_players, Players, listGet(games, j), player_id);
+				removePlayerData(chess, tournament, listGet(games, j), player_id);
+			}
 
-				if (result != PLAYER_SUCCESS && result != PLAYER_ALREADY_REMOVED)
-				{
-					genericIntDestroy(i);
-					return CHESS_OUT_OF_MEMORY;
-				}
-			}	
-
-			mapRemove(Players, &player_id);
+			mapRemove(local_players, &player_id);
 		}
 
 		genericIntDestroy(i);
@@ -292,6 +326,7 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 	return CHESS_SUCCESS;
 }
 
+//todo: review
 ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 {
 	if (chess == NULL)
@@ -318,6 +353,7 @@ ChessResult chessEndTournament(ChessSystem chess, int tournament_id)
 	return CHESS_SUCCESS;
 }
 
+//todo: review
 double chessCalculateAveragePlayTime(ChessSystem chess, int player_id, ChessResult* result)
 {
 	assert(result != NULL);
@@ -425,6 +461,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 	return CHESS_SUCCESS;
 }
 
+//todo: review
 ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file)
 {
 	FILE* file = fopen(path_file, "w");

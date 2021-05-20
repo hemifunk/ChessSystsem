@@ -3,14 +3,7 @@
 
 #include "chessSystem.h"
 #include "map.h"
-
-typedef enum
-{
-	PLAYER_OUT_OF_MEMORY,
-	PLAYER_NULL_ARGUMENT,
-	PLAYER_ALREADY_REMOVED,
-	PLAYER_SUCCESS
-} PlayerResult;
+#include <stdbool.h>
 
 typedef enum
 {
@@ -40,8 +33,6 @@ Winner gameGetWinner(Game game);
 void gameSetWinner(Game game, Winner winner);
 
 int gameGetTime(Game game);
-
-PlayerResult gameGetNewWinner(Map chess_players, Map tournament_players, Game game, int player_id);
 
 void gameRemovePlayer(Game game, int player);
 
