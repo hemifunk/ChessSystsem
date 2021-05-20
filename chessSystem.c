@@ -91,7 +91,6 @@ static void removePlayerStats(Map players, Game game, int removed_player_id)
 		playerSetNumDraws(other_player, playerGetNumDraws(other_player) - 1);
 		playerSetNumWins(other_player, playerGetNumWins(other_player) + 1);
 	}
-
 	else if ((gameGetWinner(game) == FIRST_PLAYER && first_player_id == removed_player_id) ||
 			 (gameGetWinner(game) == SECOND_PLAYER && second_player_id == removed_player_id))
 	{
@@ -442,7 +441,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 		{
 			Player player = mapGet(chess->all_players, i);
 
-			if (playerGetLevel(player) > playerGetLevel(old_top_player) || playerGetNumGames(player) == 0)
+			if (playerGetLevel(player) > playerGetLevel(old_top_player) || playerGetNumGames(player) <= 0)
 			{
 				genericIntDestroy(i);
 				continue;

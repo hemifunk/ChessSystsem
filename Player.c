@@ -62,6 +62,7 @@ Player playerCopy(Player player)
 	copy->total_play_time = player->total_play_time;
 	copy->num_games = player->num_games;
 	copy->level = player->level;
+	
 	return copy;
 }
 
