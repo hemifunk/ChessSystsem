@@ -399,7 +399,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 		playerSetLevel(player, level);
 
 		if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
-			playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player))
+			(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
 		{
 			new_top_player = player;
 		}
@@ -443,7 +443,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 			}
 
 			if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
-				playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player))
+				(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
 			{
 				new_top_player = player;
 			}

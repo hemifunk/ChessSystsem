@@ -250,7 +250,7 @@ void tournamentEnd(Tournament tournament)
 			assert(old_winner != NULL);
 
 			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner) ||
-				playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id)
+				(playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id))
 			{
 				tournament->winner_id = playerGetId(current);
 			}
