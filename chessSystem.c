@@ -106,6 +106,8 @@ static bool removeGameStats(ChessSystem chess, Tournament tournament, Game game,
 
 	if (global_data == NULL || local_data == NULL) // other player was also removed
 	{
+		assert(global_data == NULL && local_data == NULL);
+
 		return true;
 	}
 
@@ -280,7 +282,6 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
 	return CHESS_SUCCESS;
 }
 
-//todo: review
 ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 {
 	if (chess == NULL)
@@ -302,16 +303,13 @@ ChessResult chessRemovePlayer(ChessSystem chess, int player_id)
 	{
 		Tournament tournament = mapGet(chess->tournaments, i);
 
-		assert(tournament != NULL);
-
 		if (tournamentHasEnded(tournament) == false && mapContains(tournamentGetPlayers(tournament), &player_id))
 		{
-			List games = tournamentGetGames(tournament);
 			Map local_players = tournamentGetPlayers(tournament);
 
-			for (int j = 0; j < listSize(games); j++)
+			for (int j = 0; j < tournamentGetNumberGames(tournament); j++)
 			{
-				removeGameStats(chess, tournament, listGet(games, j), player_id);
+				removeGameStats(chess, tournament, listGet(tournamentGetGames(tournament), j), player_id);
 			}
 
 			mapRemove(local_players, &player_id);
