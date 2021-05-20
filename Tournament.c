@@ -8,6 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define CAPITAL_A 'A'
+#define CAPITAL_Z 'Z'
+#define LOWERCASE_A 'a'
+#define LOWERCASE_Z 'z'
+#define SPACE_CHAR ' '
+#define WIN_SCORE 2
+
 struct Tournament_t
 {
 	int id;
@@ -17,11 +24,12 @@ struct Tournament_t
 	int max_games_per_player;
 	List games;
 	Map players;
+	int total_num_of_players;
 };
 
 static bool addPlayerStats(Map players, int first_player, int second_player, Winner winner, int play_time)
 {
-	if (first_player <= 0 || second_player <= 0 || play_time <= 0)
+	if (first_player <= 0 || second_player <= 0 || play_time < 0)
 	{
 		return false;
 	}
@@ -134,6 +142,7 @@ Tournament tournamentCreate(int id, int max_games_per_player, const char* locati
 	tournament->winner_id = 0;
 	tournament->has_finished = false;
 	tournament->max_games_per_player = max_games_per_player;
+	tournament->total_num_of_players = 0;
 
 	return tournament;
 }
@@ -174,6 +183,7 @@ Tournament tournamentCopy(Tournament tournament)
 
 	copy->has_finished = tournament->has_finished;
 	copy->winner_id = tournament->winner_id;
+	copy->total_num_of_players = tournament->total_num_of_players;
 
 	return copy;
 }
@@ -227,7 +237,7 @@ void tournamentEnd(Tournament tournament)
 		return;
 	}
 
-	int max_score = 0;
+	int max_score = -1;
 
 	MAP_FOREACH(int*, i, tournament->players)
 	{
@@ -235,9 +245,9 @@ void tournamentEnd(Tournament tournament)
 
 		assert(current != NULL);
 
-		int score = playerGetNumWins(current) * 2 + playerGetNumDraws(current);
+		int score = playerGetNumWins(current) * WIN_SCORE + playerGetNumDraws(current);
 
-		if (score > max_score || max_score == 0 || tournament->winner_id == 0)
+		if (score > max_score)
 		{
 			max_score = score;
 
@@ -249,8 +259,20 @@ void tournamentEnd(Tournament tournament)
 
 			assert(old_winner != NULL);
 
-			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner) ||
-				(playerGetNumLoses(current) == playerGetNumLoses(old_winner) && playerGetId(current) < tournament->winner_id))
+			if (playerGetNumLoses(current) < playerGetNumLoses(old_winner))
+			{
+				tournament->winner_id = playerGetId(current);
+			}
+
+			else if (playerGetNumLoses(current) == playerGetNumLoses(old_winner) && 
+					playerGetNumWins(current) > playerGetNumWins(old_winner))
+			{
+				tournament->winner_id = playerGetId(current);
+			}
+
+			else if (playerGetNumLoses(current) == playerGetNumLoses(old_winner) &&
+					 playerGetNumWins(current) == playerGetNumWins(old_winner) &&
+					 playerGetId(current) < playerGetId(old_winner))
 			{
 				tournament->winner_id = playerGetId(current);
 			}
@@ -271,19 +293,18 @@ bool tournamentIsLocationValid(const char* location)
 
 	char current = location[0];
 
-	//todo: add defines
-	if ((current >= 'A' && current <= 'Z') == false)
+	if ((current >= CAPITAL_A && current <= CAPITAL_Z) == false)
 	{
 		return false;
 	}
 
 	int i = 1;
 
-	while (location[i] != '\0')
+	while (location[i] != 0)
 	{
 		current = location[i];
 
-		if (((current >= 'a' && current <= 'z') || current == ' ') == false)
+		if (((current >= LOWERCASE_A && current <= LOWERCASE_Z) || current == SPACE_CHAR) == false)
 		{
 			return false;
 		}
@@ -294,6 +315,7 @@ bool tournamentIsLocationValid(const char* location)
 	return true;
 }
 
+//todo: ask about code duplication with param checks
 bool tournamentAddGame(Map chess_players, Tournament tournament, int first_player, int second_player, Winner winner, int play_time)
 {
 	if (chess_players == NULL || tournament == NULL)
@@ -319,6 +341,16 @@ bool tournamentAddGame(Map chess_players, Tournament tournament, int first_playe
 	if (tournamentPlayerNumGames(tournament, second_player) >= tournament->max_games_per_player)
 	{
 		return false;
+	}
+
+	if(mapContains(tournament->players, first_player) == false)
+	{
+		tournament->total_num_of_players += 1;
+	}
+
+	if (mapContains(tournament->players, second_player) == false)
+	{
+		tournament->total_num_of_players += 1;
 	}
 
 	if (addPlayer(tournament->players, first_player) == false ||
@@ -466,4 +498,14 @@ float tournamentGetAvgGameTime(Tournament tournament)
 	}
 
 	return total_time / tournamentGetNumberGames(tournament);
+}
+
+int tournamentGetTotalNumPlayers(Tournament tournament)
+{
+	if(tournament == NULL)
+	{
+		return 0;
+	}
+
+	return tournament->total_num_of_players;
 }

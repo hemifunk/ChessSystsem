@@ -10,7 +10,7 @@ struct Game_t
 	int second_player;
 	int play_time;
 	Winner winner;
-	bool player_removed;
+	bool has_player_removed;
 };
 
 ChessResult gameValidate(int first_player, int second_player, int time)
@@ -20,7 +20,7 @@ ChessResult gameValidate(int first_player, int second_player, int time)
 		return CHESS_INVALID_ID;
 	}
 
-	if (time <= 0)
+	if (time < 0)
 	{
 		return CHESS_INVALID_PLAY_TIME;
 	}
@@ -46,7 +46,7 @@ Game gameCreate(int first_player, int second_player, int time, Winner winner)
 	game->second_player = second_player;
 	game->play_time = time;
 	game->winner = winner;
-	game->player_removed = false;
+	game->has_player_removed = false;
 
 	return game;
 }
@@ -64,7 +64,7 @@ Game gameCopy(Game game)
 	}
 
 	Game copy = gameCreate(game->first_player, game->second_player, game->play_time, game->winner);
-	copy->player_removed = game->player_removed;
+	copy->has_player_removed = game->has_player_removed;
 
 	return copy;
 }
@@ -119,22 +119,22 @@ bool gameHasPlayerRemoved(Game game)
 {
 	assert(game != NULL);
 
-	return game->player_removed;
+	return game->has_player_removed;
 }
 
-void gameRemovePlayer(Game game, int player)
+void gameRemovePlayer(Game game, int player_id)
 {
 	assert(game != NULL);
-	assert(player > 0);
+	assert(player_id > 0);
 
-	if (game->first_player == player)
+	if (game->first_player == player_id)
 	{
 		game->winner = SECOND_PLAYER;
-		game->player_removed = true;
+		game->has_player_removed = true;
 	}
-	else if (game->second_player == player)
+	else if (game->second_player == player_id)
 	{
 		game->winner = FIRST_PLAYER;
-		game->player_removed = true;
+		game->has_player_removed = true;
 	}
 }
