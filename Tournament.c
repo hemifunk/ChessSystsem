@@ -445,7 +445,7 @@ int tournamentGetLongestGameTime(Tournament tournament)
 
 float tournamentGetAvgGameTime(Tournament tournament)
 {
-	if(tournament == NULL)
+	if (tournament == NULL)
 	{
 		return 0;
 	}
