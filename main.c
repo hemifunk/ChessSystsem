@@ -3,6 +3,8 @@
 #include <assert.h>
 
 //TODO: REVIEW ALL CHANGES
+//todo: update chessSystsem.h to newest file
+//todo: check updated specifications
 
 //todo: function max len - 50 lines
 //todo: line max len: 120 chars
