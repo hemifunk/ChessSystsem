@@ -410,6 +410,13 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 
 		playerSetLevel(player, level);
 
+		if(new_top_player == NULL)
+		{
+			new_top_player = player;
+			genericIntDestroy(i);
+			continue;
+		}
+
 		if (playerGetLevel(player) > playerGetLevel(new_top_player) ||
 			(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
 		{
