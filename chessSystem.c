@@ -135,14 +135,20 @@ static ChessResult savePlayers(ChessSystem chess, FILE* file)
 		return CHESS_NULL_ARGUMENT;
 	}
 
-	Player new_top_player = NULL;
-	Player old_top_player = NULL;
+	Map players = mapCopy(chess->all_players);
 
-	do
+	if (players == NULL)
 	{
-		MAP_FOREACH(int*, i, chess->all_players)
+		return CHESS_OUT_OF_MEMORY;
+	}
+
+	while (true)
+	{
+		Player top_player = NULL;
+
+		MAP_FOREACH(int*, i, players)
 		{
-			Player player = mapGet(chess->all_players, i);
+			Player player = mapGet(players, i);
 
 			if (playerGetNumGames(player) <= 0)
 			{
@@ -150,38 +156,32 @@ static ChessResult savePlayers(ChessSystem chess, FILE* file)
 				continue;
 			}
 
-			if (old_top_player != NULL &&
-				(playerGetLevel(player) > playerGetLevel(old_top_player) ||
-				(playerGetLevel(player) == playerGetLevel(old_top_player) && playerGetId(player) <= playerGetId(old_top_player))))
+			if (top_player == NULL ||
+				playerGetLevel(player) > playerGetLevel(top_player) ||
+				(playerGetLevel(player) == playerGetLevel(top_player) && playerGetId(player) < playerGetId(top_player)))
 			{
-				genericIntDestroy(i);
-				continue;
-			}
-
-			if (new_top_player == NULL || 
-				playerGetLevel(player) > playerGetLevel(new_top_player) ||
-				(playerGetLevel(player) == playerGetLevel(new_top_player) && playerGetId(player) < playerGetId(new_top_player)))
-			{
-				new_top_player = player;
+				top_player = player;
 			}
 
 			genericIntDestroy(i);
 		}
 
-		if (new_top_player == NULL)
+		if (top_player == NULL)
 		{
 			break;
 		}
 
-		if (fprintf(file, "%d %.2f\n", playerGetId(new_top_player), playerGetLevel(new_top_player)) <= 0)
+		if (fprintf(file, "%d %.2f\n", playerGetId(top_player), playerGetLevel(top_player)) <= 0)
 		{
 			return CHESS_SAVE_FAILURE;
 		}
 
-		old_top_player = new_top_player;
-		new_top_player = NULL;
+		int top_id = playerGetId(top_player);
 
-	} while (true);
+		mapRemove(players, &top_id);
+	}
+
+	mapDestroy(players);
 
 	return CHESS_SUCCESS;
 }
@@ -468,9 +468,7 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE* file)
 
 	calculateLevels(chess);
 
-	ChessResult result = savePlayers(chess, file);
-
-	return result;
+	return savePlayers(chess, file);
 }
 
 ChessResult chessSaveTournamentStatistics(ChessSystem chess, char* path_file)

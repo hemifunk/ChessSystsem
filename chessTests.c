@@ -46,7 +46,7 @@ bool testChessPrintLevelsAndTournamentStatistics()
 	if (!file_levels)
 	{
 		printf("test failed to open file, make sure you have the folder tests in the same folder with chessSystem"
-			   "excutable file and you have write permissions for the file /output/player_levels_your_output.txt");
+			   "excutable file and you have write permissions for the file output/player_levels_your_output.txt");
 		return false;
 	}
 	ChessSystem chess = chessCreate();
